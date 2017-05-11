@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NGAT.Business.Domain.Base
+﻿namespace NGAT.Business.Domain.Base
 {
     /// <summary>
     /// A Generic Entity, with id type <see cref="TKey"/>
