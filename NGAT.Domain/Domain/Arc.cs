@@ -5,7 +5,7 @@ namespace NGAT.Business.Domain
     /// <summary>
     /// A class for representing an arc (directed edge)
     /// </summary>
-    public class Arc : Entity
+    public class Arc : GraphDependantEntity
     {
         /// <summary>
         /// The Id of the From Node

@@ -3,7 +3,10 @@ using NGAT.Business.Domain.Base;
 
 namespace NGAT.Business.Domain
 {
-    public class Node : Entity
+    /// <summary>
+    /// Represents a graph node (vertex)
+    /// </summary>
+    public class Node : GraphDependantEntity
     {
         /// <summary>
         /// The Longitud for this node
