@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using NGAT.Business.Domain.Base;
 
-namespace NGAT.Business.Domain
+namespace NGAT.Business.Domain.Core
 {
     /// <summary>
     /// Represents a Network Graph

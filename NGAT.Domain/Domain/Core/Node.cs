@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using NGAT.Business.Domain.Base;
 
-namespace NGAT.Business.Domain
+namespace NGAT.Business.Domain.Core
 {
     /// <summary>
     /// Represents a graph node (vertex)

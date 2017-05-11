@@ -1,6 +1,6 @@
 ﻿using NGAT.Business.Domain.Base;
 
-namespace NGAT.Business.Domain
+namespace NGAT.Business.Domain.Core
 {
     /// <summary>
     /// A class for representing an arc (directed edge)
