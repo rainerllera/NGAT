@@ -1,4 +1,6 @@
-﻿namespace NGAT.Business.Domain.Base
+﻿using NGAT.Business.Domain.Core;
+
+namespace NGAT.Business.Domain.Base
 {
     /// <summary>
     /// A Generic Entity, with id type <see cref="TKey"/>
