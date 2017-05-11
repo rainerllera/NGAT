@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace NGAT.Business.Algorithms
+namespace NGAT.Business.Contracts.Algorithms
 {
     /// <summary>
     /// Represents an algorithm with input and output
