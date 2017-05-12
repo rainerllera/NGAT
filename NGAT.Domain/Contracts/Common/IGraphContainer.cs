@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using NGAT.Business.Domain.Core;
+﻿using NGAT.Business.Domain.Core;
 
 namespace NGAT.Business.Contracts.Common
 {
