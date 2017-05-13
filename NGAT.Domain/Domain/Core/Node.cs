@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using NGAT.Business.Domain.Base;
+using GeoCoordinatePortable;
 
 namespace NGAT.Business.Domain.Core
 {
@@ -8,6 +9,11 @@ namespace NGAT.Business.Domain.Core
     /// </summary>
     public class Node : GraphDependantEntity
     {
+        /// <summary>
+        /// The coordinate for this node
+        /// </summary>
+        public GeoCoordinate Coordinate { get; set; }
+
         /// <summary>
         /// The Longitud for this node
         /// </summary>
