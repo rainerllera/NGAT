@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using NGAT.Business.Contracts.Filters;
 
 namespace NGAT.Business.Implementation.IO.Osm.Inputs
