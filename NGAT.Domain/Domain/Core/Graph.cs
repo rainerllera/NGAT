@@ -11,12 +11,12 @@ namespace NGAT.Business.Domain.Core
         /// <summary>
         /// The Nodes of this Graph (in Dictionary format, for indexing)
         /// </summary>
-        public virtual IDictionary<ulong, Node> NodesIndex { get; set; }
+        public virtual IDictionary<int, Node> NodesIndex { get; set; }
 
         /// <summary>
         /// The Arcs of this Graph (in Dictionary format, for indexing)
         /// </summary>
-        public virtual IDictionary<ulong, Arc> ArcsIndex { get; set; }
+        public virtual IDictionary<int, Arc> ArcsIndex { get; set; }
 
         /// <summary>
         /// The nodes of this graph

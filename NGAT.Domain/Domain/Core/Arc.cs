@@ -10,7 +10,7 @@ namespace NGAT.Business.Domain.Core
         /// <summary>
         /// The Id of the From Node
         /// </summary>
-        public ulong FromNodeId { get; set; }
+        public int FromNodeId { get; set; }
 
         /// <summary>
         /// The From Node
@@ -20,7 +20,7 @@ namespace NGAT.Business.Domain.Core
         /// <summary>
         /// The Id of the To Node
         /// </summary>
-        public ulong ToNodeId { get; set; }
+        public int ToNodeId { get; set; }
 
         /// <summary>
         /// The To Node
