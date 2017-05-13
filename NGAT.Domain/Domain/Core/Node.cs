@@ -11,12 +11,12 @@ namespace NGAT.Business.Domain.Core
         /// <summary>
         /// The Longitud for this node
         /// </summary>
-        public float Longitud { get; set; }
+        public double Longitud { get; set; }
 
         /// <summary>
         /// The Latitude for this node
         /// </summary>
-        public float Latitude { get; set; }
+        public double Latitude { get; set; }
 
         /// <summary>
         /// The data associated with this node, i.e: Name, Tags, etc, ideally, JSON-encoded
