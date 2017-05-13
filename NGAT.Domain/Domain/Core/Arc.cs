@@ -10,22 +10,22 @@ namespace NGAT.Business.Domain.Core
         /// <summary>
         /// The Id of the From Node
         /// </summary>
-        public ulong FromId { get; set; }
+        public int FromNodeId { get; set; }
 
         /// <summary>
         /// The From Node
         /// </summary>
-        public Node From { get; set; }
+        public Node FromNode { get; set; }
 
         /// <summary>
         /// The Id of the To Node
         /// </summary>
-        public ulong ToId { get; set; }
+        public int ToNodeId { get; set; }
 
         /// <summary>
         /// The To Node
         /// </summary>
-        public Node To { get; set; }
+        public Node ToNode { get; set; }
 
         /// <summary>
         /// The Data related to this Arc. i.e: Distance, maxspeed, etc
