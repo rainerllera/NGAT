@@ -289,5 +289,5 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
-*.pbf
-*.pbf
+cuba-latest.osm.pbf
+
