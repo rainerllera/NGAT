@@ -46,7 +46,7 @@ namespace NGAT.Business.Domain.Core
         {
             get
             {
-                return _arcAttributes ?? (_arcAttributes = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(this.NodeData));
+                return _arcAttributes ?? (_arcAttributes = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(this.ArcData));
             }
         }
     }
