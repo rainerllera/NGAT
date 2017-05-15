@@ -8,16 +8,24 @@ namespace NGAT.Business.Implementation.IO.Osm.Inputs
     /// </summary>
     public class DefaultOsmPbfGraphBuilderInput
     {
-        public DefaultOsmPbfGraphBuilderInput(IAttributeFilterCollection nodeFilters,
+        public DefaultOsmPbfGraphBuilderInput(string filePath,
+            IAttributeFilterCollection nodeFilters,
             IAttributesFetcherCollection nodeAttributeFetchers,
             IAttributeFilterCollection arcFilters,
             IAttributesFetcherCollection arcAttributeFetchers)
         {
+            FilePath = filePath;
             NodeFiltersCollection = nodeFilters ?? throw new ArgumentNullException("nodeFilters");
             NodeAttributeFetchersCollection = nodeAttributeFetchers ?? throw new ArgumentNullException("nodeAttributeFetchers");
             ArcFiltersCollection = arcFilters ?? throw new ArgumentNullException("arcFilters");
             ArcAttributeFetchersCollection = arcAttributeFetchers ?? throw new ArgumentNullException("arcAttributeFetchers");
         }
+
+        /// <summary>
+        /// The Path to the .pbf map file
+        /// </summary>
+        public string FilePath { get; set; }
+
         /// <summary>
         /// The Collection of filters to apply to the nodes of the graph
         /// </summary>
