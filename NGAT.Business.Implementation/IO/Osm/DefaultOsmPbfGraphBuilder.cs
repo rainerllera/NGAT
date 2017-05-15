@@ -34,12 +34,31 @@ namespace NGAT.Business.Implementation.IO.Osm
             if (!File.Exists(input.FilePath))
                 throw new ArgumentException("Pbf file specified is invalid or doesn't exists.");
 
+            
             Graph result = new Graph();
 
             using (var fileStream = File.OpenRead(input.FilePath))
             {
                 var streamSource = new PBFOsmStreamSource(fileStream);
+                SortedSet<long> whiteListedNodes = new SortedSet<long>();
+                List<Way> whiteListedWays = new List<Way>();
+                foreach (Way way in streamSource.Where(o=>o.Type==OsmGeoType.Way))
+                {
+                    var wayAttrs = way.Tags.ToDictionary(t => t.Key, t => t.Value);
+                    if(input.ArcFiltersCollection.ApplyAllFilters(wayAttrs))
+                    {
+                        whiteListedWays.Add(way);
+                        foreach (var nodeId in way.Nodes)
+                        {
+                            whiteListedNodes.Add(nodeId);
+                        }
+                    }
+                }
+
                 var notAddedNodes = new SortedDictionary<long, OsmSharp.Node>();
+
+                streamSource.Reset();
+
                 #region Adding Nodes (filtered)
                 foreach (OsmSharp.Node osmNode in streamSource.Where(o=>o.Type == OsmGeoType.Node))
                 {
@@ -52,7 +71,7 @@ namespace NGAT.Business.Implementation.IO.Osm
                     #endregion
 
                     #region Filtering node by its attributes
-                    if (input.NodeFiltersCollection.ApplyAllFilters(attributes) && osmNode.Longitude.HasValue && osmNode.Latitude.HasValue && osmNode.Id.HasValue)
+                    if (osmNode.Longitude.HasValue && osmNode.Latitude.HasValue && osmNode.Id.HasValue && whiteListedNodes.Contains(osmNode.Id.Value) && input.NodeFiltersCollection.ApplyAllFilters(attributes))
                     {
                         var newNode = new Domain.Core.Node()
                         {
