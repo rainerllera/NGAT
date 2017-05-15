@@ -4,6 +4,9 @@ using System.Text;
 using Xunit;
 using Moq;
 using NGAT.Business.Contracts.Filters;
+using NGAT.Business.Implementation.IO.Osm.Inputs;
+using NGAT.Business.Implementation.IO.Osm;
+using System.IO;
 
 namespace NGAT.Business.Tests.GraphBuilders.Osm
 {
@@ -25,6 +28,7 @@ namespace NGAT.Business.Tests.GraphBuilders.Osm
                         result.Add("name", i["name"]);
                     return result;
                 });
+            NodeFetchersCollection = mockNodeFetchersCollection.Object;
 
             var mockArcFilterCollection = new Mock<IAttributeFilterCollection>();
             mockArcFilterCollection.Setup(i => i.ApplyAllFilters(It.IsAny<IDictionary<string, string>>()))
@@ -43,9 +47,7 @@ namespace NGAT.Business.Tests.GraphBuilders.Osm
                     {
                         if (KV.Key.ToLowerInvariant().StartsWith("highway"))
                             result.Add(KV.Key, KV.Value);
-                        if (KV.Key.ToLowerInvariant().StartsWith("oneway"))
-                            result.Add(KV.Key, KV.Value);
-                        if (KV.Key.ToLowerInvariant().Contains("way"))
+                        else if (KV.Key.ToLowerInvariant().Contains("way"))
                             result.Add(KV.Key, KV.Value);
                     }
 
@@ -63,9 +65,15 @@ namespace NGAT.Business.Tests.GraphBuilders.Osm
 
         IAttributesFetcherCollection ArcFetchersCollection { get; set; }
 
+        [Fact]
         public void DefaultOsmPbfGraphBuilder_Build_Tests()
         {
+            var defautlInput = new DefaultOsmPbfGraphBuilderInput(Path.Combine(AppContext.BaseDirectory, "cuba-latest.osm.pbf"), NodeFilterCollection, NodeFetchersCollection, ArcFilterCollection, ArcFetchersCollection);
+            var builder = new DefaultOsmPbfGraphBuilder();
 
+            var graph = builder.Build(defautlInput);
+            
+            Assert.NotNull(graph);
         }
     }
 }
