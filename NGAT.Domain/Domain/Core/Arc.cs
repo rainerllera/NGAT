@@ -28,6 +28,11 @@ namespace NGAT.Business.Domain.Core
         public Node ToNode { get; set; }
 
         /// <summary>
+        /// The distance this arc covers
+        /// </summary>
+        public double Distance { get; set; }
+
+        /// <summary>
         /// The Data related to this Arc. i.e: Distance, maxspeed, etc
         /// </summary>
         public string ArcData { get; set; }
