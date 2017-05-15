@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using NGAT.Business.Domain.Base;
 using Newtonsoft.Json;
+using System;
 
 namespace NGAT.Business.Domain.Core
 {
@@ -71,6 +72,60 @@ namespace NGAT.Business.Domain.Core
 
 
             }
+        }
+
+        /// <summary>
+        /// Adds a node to this graph
+        /// </summary>
+        /// <param name="latitude">The latitude of the node</param>
+        /// <param name="longitude">The longitude of the node</param>
+        /// <param name="originalId">The original Id of the node object in its original data source</param>
+        /// <param name="fetchedAttributes">The attributes to stores for this node</param>
+        public void AddNode(double latitude, double longitude, long originalId, IDictionary<string,string> fetchedAttributes)
+        {
+            this.AddNode(new Node
+            {
+                Latitude = latitude,
+                Longitude = longitude
+            }, originalId, fetchedAttributes);
+        }
+
+        /// <summary>
+        /// Adds an arc to the graph
+        /// </summary>
+        /// <param name="fromOriginalNodeId">The Id of the origin point from data source</param>
+        /// <param name="toOriginalNodeId">The Id of the destination point from data source</param>
+        /// <param name="fetchedArcAttributes">The attributes to store for this arc</param>
+        public void AddArc(long fromOriginalNodeId, long toOriginalNodeId, IDictionary<string, string> fetchedArcAttributes)
+        {
+            var fromNode = NodesIndex[VertexToNodesIndex[fromOriginalNodeId]];
+            var toNode = NodesIndex[VertexToNodesIndex[toOriginalNodeId]];
+            AddArc(fromNode, toNode, fetchedArcAttributes);
+        }
+
+        /// <summary>
+        /// Adds an arc to the graph
+        /// </summary>
+        /// <param name="fromNode">The origin node</param>
+        /// <param name="toNode">The destination node</param>
+        /// <param name="fetchedArcAttributes">The attributes to store for this arc</param>
+        private void AddArc(Node fromNode, Node toNode, IDictionary<string, string> fetchedArcAttributes)
+        {
+            var newArc = new Arc()
+            {
+                ArcData = JsonConvert.SerializeObject(fetchedArcAttributes),
+                FromNode = fromNode,
+                ToNode = toNode,
+                FromNodeId = fromNode.Id,
+                ToNodeId = toNode.Id,
+                Graph = this,
+                GraphId = this.Id,
+                Id = this.Arcs.Count + 1
+            };
+            fromNode.OutgoingArcs.Add(newArc);
+            toNode.IncomingArcs.Add(newArc);
+            Arcs.Add(newArc);
+            ArcsIndex.Add(newArc.Id, newArc);
         }
         #endregion
     }
