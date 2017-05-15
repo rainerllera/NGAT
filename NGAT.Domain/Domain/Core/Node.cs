@@ -9,15 +9,21 @@ namespace NGAT.Business.Domain.Core
     /// </summary>
     public class Node : GraphDependantEntity
     {
+        private GeoCoordinate _coordinate;
         /// <summary>
         /// The coordinate for this node
         /// </summary>
-        public GeoCoordinate Coordinate { get; set; }
+        public GeoCoordinate Coordinate {
+            get
+            {
+                return _coordinate ?? (_coordinate = new GeoCoordinate(this.Latitude, this.Longitude));
+            }
+        }
 
         /// <summary>
         /// The Longitud for this node
         /// </summary>
-        public double Longitud { get; set; }
+        public double Longitude { get; set; }
 
         /// <summary>
         /// The Latitude for this node
