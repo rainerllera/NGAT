@@ -37,6 +37,9 @@ namespace NGAT.Business.Implementation.IO.Osm
             
             Graph result = new Graph();
 
+            //mapping from nodes to vertex
+            var nodeToVertex = new SortedDictionary<long, int>();
+
             using (var fileStream = File.OpenRead(input.FilePath))
             {
                 var streamSource = new PBFOsmStreamSource(fileStream);
@@ -85,6 +88,8 @@ namespace NGAT.Business.Implementation.IO.Osm
 
                         //Adding the node to the graph
                         result.AddNode(newNode, osmNode.Id.Value, fecthedAttributes);
+
+                        nodeToVertex.Add(osmNode.Id.Value, newNode.Id);
                     }
                     else if(osmNode.Longitude.HasValue && osmNode.Latitude.HasValue && osmNode.Id.HasValue)//Conditions for a node to be valid
                     {
@@ -109,7 +114,7 @@ namespace NGAT.Business.Implementation.IO.Osm
                     #endregion
 
                     #region Filtering ways by its attributes
-                    if(input.ArcFiltersCollection.ApplyAllFilters(attributes))
+                    if (input.ArcFiltersCollection.ApplyAllFilters(attributes))
                     {
                         //Way passes all filters so we process it and fetch the attributes needed
                         var fetchedArcAttributes = input.ArcAttributeFetchersCollection.FetchWhiteListed(attributes);
@@ -123,25 +128,25 @@ namespace NGAT.Business.Implementation.IO.Osm
                             && attributes["oneway"].ToLowerInvariant() != "no"
                             && attributes["oneway"].ToLowerInvariant() != "0"
                             && attributes["oneway"].ToLowerInvariant() != "false";
-                            
-                        bool forwardDirection = oneWay && (attributes["oneway"].ToLowerInvariant() == "yes" 
-                            || attributes["oneway"].ToLowerInvariant() == "1" 
+
+                        bool forwardDirection = oneWay && (attributes["oneway"].ToLowerInvariant() == "yes"
+                            || attributes["oneway"].ToLowerInvariant() == "1"
                             || attributes["oneway"].ToLowerInvariant() == "true");
 
                         #region Adding Arcs
-                        if(oneWay)
+                        if (oneWay)
                         {
                             #region One Way
                             //Way is one way, adding arcs in corresponding direction
-                            ProcessWay(result, osmWay, forwardDirection, arcData, notAddedNodes);
+                            ProcessWay(result, osmWay, forwardDirection, arcData, nodeToVertex, notAddedNodes);
                             #endregion
                         }
                         else
                         {
                             #region Both ways
                             //Way is not one way, adding arcs in both directions
-                            ProcessWay(result, osmWay, true, arcData, notAddedNodes);
-                            ProcessWay(result, osmWay, false, arcData, notAddedNodes);
+                            ProcessWay(result, osmWay, true, arcData, nodeToVertex, notAddedNodes);
+                            ProcessWay(result, osmWay, false, arcData, nodeToVertex, notAddedNodes);
                             #endregion
 
 
@@ -164,7 +169,7 @@ namespace NGAT.Business.Implementation.IO.Osm
         /// <param name="forward">A value indicating if the processing should be made in the same order as the way</param>
         /// <param name="arcData">The fetched arc attributes for this way</param>
         /// <param name="notAddedNodes">The nodes that didn't pass the filters, bu might still be part of a way, necessary for distance calculations.</param>
-        private void ProcessWay(Graph result, OsmSharp.Way osmWay, bool forward, ArcData arcData, IDictionary<long,OsmSharp.Node> notAddedNodes)
+        private void ProcessWay(Graph result, OsmSharp.Way osmWay, bool forward, ArcData arcData, IDictionary<long, int> nodeToVertexMapping, IDictionary<long,OsmSharp.Node> notAddedNodes)
         {
             var fromNodeId = forward ? osmWay.Nodes[0] : osmWay.Nodes[osmWay.Nodes.Length - 1];
             var initialIterator = forward ? 1 : osmWay.Nodes.Length - 2;
@@ -174,17 +179,17 @@ namespace NGAT.Business.Implementation.IO.Osm
             {
                 var toNodeId = osmWay.Nodes[i];
 
-                if (result.VertexToNodesIndex.ContainsKey(fromNodeId) && result.VertexToNodesIndex.ContainsKey(toNodeId))
+                if (nodeToVertexMapping.ContainsKey(fromNodeId) && nodeToVertexMapping.ContainsKey(toNodeId))
                 {
                     //Both nodes were added to the graph, so we process the arc
-                    result.AddArc(fromNodeId, toNodeId, arcData);
+                    result.AddArc(nodeToVertexMapping[fromNodeId], nodeToVertexMapping[toNodeId], arcData);
                     fromNodeId = toNodeId;
                 }
-                else if (result.VertexToNodesIndex.ContainsKey(fromNodeId))
+                else if (nodeToVertexMapping.ContainsKey(fromNodeId))
                 {
                     //The originNode was stored, but not the destination, so we iterate trhough the way untill a stored node is found
                     double accumulatedDistance = 0;
-                    var fromNode = result.NodesIndex[result.VertexToNodesIndex[fromNodeId]];
+                    var fromNode = result.NodesIndex[nodeToVertexMapping[fromNodeId]];
 
                     bool foundFlag = true;
                     while (notAddedNodes.TryGetValue(toNodeId, out OsmSharp.Node toNode))
@@ -201,9 +206,9 @@ namespace NGAT.Business.Implementation.IO.Osm
                     //Accumulated distance>0 means that at least one node was found in the NotAddedNodes index
                     //Verifying that we stored toNode, cause can happen that previous loop exited because the current node wasn't in notAddedNodes,
                     //and that does not imply that we stored toNodeId
-                    if (foundFlag && accumulatedDistance > 0 && result.VertexToNodesIndex.ContainsKey(toNodeId))
+                    if (foundFlag && accumulatedDistance > 0 && nodeToVertexMapping.ContainsKey(toNodeId))
                     {
-                        result.AddArc(fromNodeId, toNodeId, accumulatedDistance, arcData);
+                        result.AddArc(nodeToVertexMapping[fromNodeId], nodeToVertexMapping[toNodeId], arcData);
                         fromNodeId = toNodeId;
                     }
                     else
@@ -218,7 +223,7 @@ namespace NGAT.Business.Implementation.IO.Osm
                     //Neither the origin node nor the destination node were stored, so we'll store whatever we can about this way
                     //That is, we'll look up the first stored node in the way, if any, and try to process the rest of the way
                    
-                    while (!result.VertexToNodesIndex.ContainsKey(fromNodeId))
+                    while (!nodeToVertexMapping.ContainsKey(fromNodeId))
                     {
                         //We skip
                         i += iteratorModifier;
