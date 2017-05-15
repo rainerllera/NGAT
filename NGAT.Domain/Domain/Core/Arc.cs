@@ -1,4 +1,5 @@
 ﻿using NGAT.Business.Domain.Base;
+using System.Collections.Generic;
 
 namespace NGAT.Business.Domain.Core
 {
@@ -36,5 +37,17 @@ namespace NGAT.Business.Domain.Core
         /// The Data related to this Arc. i.e: Distance, maxspeed, etc
         /// </summary>
         public string ArcData { get; set; }
+
+        IDictionary<string, string> _arcAttributes;
+        /// <summary>
+        /// The Deserialized node Data
+        /// </summary>
+        public IDictionary<string, string> ArcAttributes
+        {
+            get
+            {
+                return _arcAttributes ?? (_arcAttributes = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(this.NodeData));
+            }
+        }
     }
 }

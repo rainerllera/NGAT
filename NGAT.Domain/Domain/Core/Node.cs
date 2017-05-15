@@ -41,14 +41,24 @@ namespace NGAT.Business.Domain.Core
         /// </summary>
         public string NodeData { get; set; }
 
+        IDictionary<string, string> _nodeAttributes;
+        /// <summary>
+        /// The Deserialized node Data
+        /// </summary>
+        public IDictionary<string, string> NodeAttributes { get
+            {
+                return _nodeAttributes ?? (_nodeAttributes = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(this.NodeData));
+            }
+        }
+
         /// <summary>
         /// The outgoing arcs related to this node
         /// </summary>
-        public virtual ICollection<Arc> OutgoingArcs { get; set; }
+        public virtual IList<Arc> OutgoingArcs { get; set; }
 
         /// <summary>
         /// The incoming arcs related to this node
         /// </summary>
-        public virtual ICollection<Arc> IncomingArcs { get; set; }
+        public virtual IList<Arc> IncomingArcs { get; set; }
     }
 }
