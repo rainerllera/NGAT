@@ -8,6 +8,21 @@ namespace NGAT.Business.Domain.Core
     /// </summary>
     public class Graph : Entity<int>
     {
+        public Graph()
+        {
+            this.VertexToNodesIndex = new SortedDictionary<long, int>();
+            this.NodesIndex = new SortedDictionary<int, Node>();
+            this.ArcsIndex = new SortedDictionary<int, Arc>();
+            this.Nodes = new List<Node>();
+            this.Arcs = new List<Arc>();
+        }
+
+        #region Properties
+        /// <summary>
+        /// A mapping to represent the conversion from original points from a map, to graph nodes
+        /// </summary>
+        public virtual IDictionary<long, int> VertexToNodesIndex { get; set; }
+
         /// <summary>
         /// The Nodes of this Graph (in Dictionary format, for indexing)
         /// </summary>
@@ -27,5 +42,6 @@ namespace NGAT.Business.Domain.Core
         /// The Arcs of this graph
         /// </summary>
         public virtual ICollection<Arc> Arcs { get; set; }
+        #endregion
     }
 }
