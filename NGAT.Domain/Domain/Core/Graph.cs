@@ -12,6 +12,7 @@ namespace NGAT.Business.Domain.Core
     {
         public Graph()
         {
+            this.ArcDataIndex = new SortedDictionary<int, ArcData>();
             this.VertexToNodesIndex = new SortedDictionary<long, int>();
             this.NodesIndex = new SortedDictionary<int, Node>();
             this.ArcsIndex = new SortedDictionary<int, Arc>();
@@ -20,6 +21,7 @@ namespace NGAT.Business.Domain.Core
         }
 
         #region Properties
+        public virtual IDictionary<int, ArcData> ArcDataIndex { get; set; }
         /// <summary>
         /// A mapping to represent the conversion from original points from a map, to graph nodes
         /// </summary>
@@ -38,12 +40,17 @@ namespace NGAT.Business.Domain.Core
         /// <summary>
         /// The nodes of this graph
         /// </summary>
-        public virtual ICollection<Node> Nodes { get; set; }
+        public virtual IList<Node> Nodes { get; set; }
 
         /// <summary>
         /// The Arcs of this graph
         /// </summary>
-        public virtual ICollection<Arc> Arcs { get; set; }
+        public virtual IList<Arc> Arcs { get; set; }
+
+        /// <summary>
+        /// The Arcs profiles for this graph
+        /// </summary>
+        public virtual IList<ArcData> ArcDatas { get; set; }
         #endregion
 
         #region Methods
@@ -99,12 +106,12 @@ namespace NGAT.Business.Domain.Core
         /// <param name="fromOriginalNodeId">The Id of the origin point from data source</param>
         /// <param name="toOriginalNodeId">The Id of the destination point from data source</param>
         /// <param name="fetchedArcAttributes">The attributes to store for this arc</param>
-        public void AddArc(long fromOriginalNodeId, long toOriginalNodeId, IDictionary<string, string> fetchedArcAttributes)
+        public void AddArc(long fromOriginalNodeId, long toOriginalNodeId, ArcData arcData)
         {
             var fromNode = NodesIndex[VertexToNodesIndex[fromOriginalNodeId]];
             var toNode = NodesIndex[VertexToNodesIndex[toOriginalNodeId]];
             var distance = fromNode.Coordinate.GetDistanceTo(toNode.Coordinate);
-            AddArc(fromNode, toNode, distance, fetchedArcAttributes);
+            AddArc(fromNode, toNode, distance, arcData);
         }
 
         /// <summary>
@@ -114,11 +121,11 @@ namespace NGAT.Business.Domain.Core
         /// <param name="toOriginalNodeId">The Id of the destination point from data source</param>
         /// <param name="distance">Provided distance</param>
         /// <param name="fetchedArcAttributes">The attributes to store for this arc</param>
-        public void AddArc(long fromOriginalNodeId, long toOriginalNodeId, double distance, IDictionary<string, string> fetchedArcAttributes)
+        public void AddArc(long fromOriginalNodeId, long toOriginalNodeId, double distance, ArcData arcData)
         {
             var fromNode = NodesIndex[VertexToNodesIndex[fromOriginalNodeId]];
             var toNode = NodesIndex[VertexToNodesIndex[toOriginalNodeId]];
-            AddArc(fromNode, toNode, distance, fetchedArcAttributes);
+            AddArc(fromNode, toNode, distance, arcData);
         }
 
         /// <summary>
@@ -127,11 +134,11 @@ namespace NGAT.Business.Domain.Core
         /// <param name="fromNode">The origin node</param>
         /// <param name="toNode">The destination node</param>
         /// <param name="fetchedArcAttributes">The attributes to store for this arc</param>
-        private void AddArc(Node fromNode, Node toNode, IDictionary<string, string> fetchedArcAttributes)
+        private void AddArc(Node fromNode, Node toNode, ArcData arcData)
         {
             var newArc = new Arc()
             {
-                ArcData = JsonConvert.SerializeObject(fetchedArcAttributes),
+                ArcData = arcData,
                 FromNode = fromNode,
                 ToNode = toNode,
                 FromNodeId = fromNode.Id,
@@ -154,11 +161,11 @@ namespace NGAT.Business.Domain.Core
         /// <param name="toNode">The destination node</param>
         /// <param name="distance">Provided distance</param>
         /// <param name="fetchedArcAttributes">The attributes to store for this arc</param>
-        private void AddArc(Node fromNode, Node toNode, double distance, IDictionary<string, string> fetchedArcAttributes)
+        private void AddArc(Node fromNode, Node toNode, double distance, ArcData arcData)
         {
             var newArc = new Arc()
             {
-                ArcData = JsonConvert.SerializeObject(fetchedArcAttributes),
+                ArcData = arcData,
                 FromNode = fromNode,
                 ToNode = toNode,
                 FromNodeId = fromNode.Id,
@@ -173,7 +180,18 @@ namespace NGAT.Business.Domain.Core
             Arcs.Add(newArc);
             ArcsIndex.Add(newArc.Id, newArc);
         }
+
+        /// <summary>
+        /// Adds an arcData object to the ArcDataIndex
+        /// </summary>
+        /// <param name="arcData">The object to index</param>
+        public void AddArcData(ArcData arcData)
+        {
+            arcData.Id = ArcDataIndex.Count;
+            ArcDataIndex.Add(arcData.Id, arcData);
+        }
         #endregion
         #endregion
+
     }
 }
