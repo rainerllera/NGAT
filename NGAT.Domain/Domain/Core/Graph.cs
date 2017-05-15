@@ -47,6 +47,7 @@ namespace NGAT.Business.Domain.Core
         #endregion
 
         #region Methods
+        #region Nodes
         /// <summary>
         /// Adds a node to this graph
         /// </summary>
@@ -89,12 +90,29 @@ namespace NGAT.Business.Domain.Core
                 Longitude = longitude
             }, originalId, fetchedAttributes);
         }
+        #endregion
 
+        #region Arcs
         /// <summary>
-        /// Adds an arc to the graph
+        /// Adds an arc to the graph and calculates distance between nodes coordinates
         /// </summary>
         /// <param name="fromOriginalNodeId">The Id of the origin point from data source</param>
         /// <param name="toOriginalNodeId">The Id of the destination point from data source</param>
+        /// <param name="fetchedArcAttributes">The attributes to store for this arc</param>
+        public void AddArc(long fromOriginalNodeId, long toOriginalNodeId, IDictionary<string, string> fetchedArcAttributes)
+        {
+            var fromNode = NodesIndex[VertexToNodesIndex[fromOriginalNodeId]];
+            var toNode = NodesIndex[VertexToNodesIndex[toOriginalNodeId]];
+            var distance = fromNode.Coordinate.GetDistanceTo(toNode.Coordinate);
+            AddArc(fromNode, toNode, distance, fetchedArcAttributes);
+        }
+
+        /// <summary>
+        /// Adds an arc to the graph with the provided distance (for use when real distance is not the distance between coordinates)
+        /// </summary>
+        /// <param name="fromOriginalNodeId">The Id of the origin point from data source</param>
+        /// <param name="toOriginalNodeId">The Id of the destination point from data source</param>
+        /// <param name="distance">Provided distance</param>
         /// <param name="fetchedArcAttributes">The attributes to store for this arc</param>
         public void AddArc(long fromOriginalNodeId, long toOriginalNodeId, double distance, IDictionary<string, string> fetchedArcAttributes)
         {
@@ -104,10 +122,37 @@ namespace NGAT.Business.Domain.Core
         }
 
         /// <summary>
+        /// Adds an arc to the graph and calculates distance between nodes coordinates
+        /// </summary>
+        /// <param name="fromNode">The origin node</param>
+        /// <param name="toNode">The destination node</param>
+        /// <param name="fetchedArcAttributes">The attributes to store for this arc</param>
+        private void AddArc(Node fromNode, Node toNode, IDictionary<string, string> fetchedArcAttributes)
+        {
+            var newArc = new Arc()
+            {
+                ArcData = JsonConvert.SerializeObject(fetchedArcAttributes),
+                FromNode = fromNode,
+                ToNode = toNode,
+                FromNodeId = fromNode.Id,
+                ToNodeId = toNode.Id,
+                Graph = this,
+                GraphId = this.Id,
+                Distance = fromNode.Coordinate.GetDistanceTo(toNode.Coordinate),
+                Id = this.Arcs.Count + 1
+            };
+            fromNode.OutgoingArcs.Add(newArc);
+            toNode.IncomingArcs.Add(newArc);
+            Arcs.Add(newArc);
+            ArcsIndex.Add(newArc.Id, newArc);
+        }
+
+        /// <summary>
         /// Adds an arc to the graph
         /// </summary>
         /// <param name="fromNode">The origin node</param>
         /// <param name="toNode">The destination node</param>
+        /// <param name="distance">Provided distance</param>
         /// <param name="fetchedArcAttributes">The attributes to store for this arc</param>
         private void AddArc(Node fromNode, Node toNode, double distance, IDictionary<string, string> fetchedArcAttributes)
         {
@@ -128,6 +173,7 @@ namespace NGAT.Business.Domain.Core
             Arcs.Add(newArc);
             ArcsIndex.Add(newArc.Id, newArc);
         }
+        #endregion
         #endregion
     }
 }
