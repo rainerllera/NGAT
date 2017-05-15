@@ -163,9 +163,8 @@ namespace NGAT.Business.Implementation.IO.Osm
                     double accumulatedDistance = 0;
                     var fromNode = result.NodesIndex[result.VertexToNodesIndex[fromNodeId]];
 
-                    OsmSharp.Node toNode;
                     bool foundFlag = true;
-                    while (notAddedNodes.TryGetValue(toNodeId, out toNode))
+                    while (notAddedNodes.TryGetValue(toNodeId, out OsmSharp.Node toNode))
                     {
                         accumulatedDistance += fromNode.Coordinate.GetDistanceTo(new GeoCoordinatePortable.GeoCoordinate(toNode.Latitude.Value, toNode.Longitude.Value));
                         i += iteratorModifier;
@@ -176,7 +175,10 @@ namespace NGAT.Business.Implementation.IO.Osm
                         }
                         toNodeId = osmWay.Nodes[i];
                     }
-                    if (foundFlag)
+                    //Accumulated distance>0 means that at least one node was found in the NotAddedNodes index
+                    //Verifying that we stored toNode, cause can happen that previous loop exited because the current node wasn't in notAddedNodes,
+                    //and that does not imply that we stored toNodeId
+                    if (foundFlag && accumulatedDistance > 0 && result.VertexToNodesIndex.ContainsKey(toNodeId))
                     {
                         result.AddArc(fromNodeId, toNodeId, accumulatedDistance, fetchedArcAttributes);
                         fromNodeId = toNodeId;
@@ -197,7 +199,7 @@ namespace NGAT.Business.Implementation.IO.Osm
                     {
                         //We skip
                         i += iteratorModifier;
-                        if (forward ? i < osmWay.Nodes.Length : i >= 0)
+                        if (i >= osmWay.Nodes.Length || i < 0)
                             break;
                         fromNodeId = osmWay.Nodes[i];
                     }
