@@ -59,7 +59,7 @@ namespace NGAT.Business.Domain.Core
             if(!this.NodesIndex.ContainsKey(node.Coordinate.GetHashCode()))
             {
                 //Using the well-formed hash code of the coordinate as Id for the node
-                node.Id = node.Coordinate.GetHashCode();
+                node.Id = this.Nodes.Count + 1;//node.Coordinate.GetHashCode(); this is not WORKING
 
                 //Converting the fetched attributes for the node to Json and storing it
                 node.NodeData = JsonConvert.SerializeObject(fetchedAttributes);
