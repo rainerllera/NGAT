@@ -9,6 +9,12 @@ namespace NGAT.Business.Domain.Core
     /// </summary>
     public class Node : GraphDependantEntity
     {
+        public Node()
+        {
+            this.IncomingArcs = new List<Arc>();
+            this.OutgoingArcs = new List<Arc>();
+        }
+
         private GeoCoordinate _coordinate;
         /// <summary>
         /// The coordinate for this node
