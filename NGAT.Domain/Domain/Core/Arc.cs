@@ -34,20 +34,14 @@ namespace NGAT.Business.Domain.Core
         public double Distance { get; set; }
 
         /// <summary>
-        /// The Data related to this Arc. i.e: Distance, maxspeed, etc
+        /// The id of the data for this arc
         /// </summary>
-        public string ArcData { get; set; }
+        public int ArcDataId { get; set; }
 
-        IDictionary<string, string> _arcAttributes;
         /// <summary>
-        /// The Deserialized node Data
+        /// The data for this arc
         /// </summary>
-        public IDictionary<string, string> ArcAttributes
-        {
-            get
-            {
-                return _arcAttributes ?? (_arcAttributes = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(this.ArcData));
-            }
-        }
+        public ArcData ArcData { get; set; }
+
     }
 }
