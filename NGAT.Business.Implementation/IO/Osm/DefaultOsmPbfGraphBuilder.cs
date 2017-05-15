@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using NGAT.Business.Contracts.IO;
 using NGAT.Business.Domain.Core;
 using NGAT.Business.Implementation.IO.Osm.Inputs;
+using OsmSharp.IO.PBF;
 
 namespace NGAT.Business.Implementation.IO.Osm
 {
@@ -10,12 +11,17 @@ namespace NGAT.Business.Implementation.IO.Osm
     {
         public Graph Build(DefaultOsmPbfGraphBuilderInput input)
         {
-            throw new NotImplementedException();
+            return InternalBuild(input);
         }
 
         public Task<Graph> BuildAsync(DefaultOsmPbfGraphBuilderInput input)
         {
-            throw new NotImplementedException();
+            return new Task<Graph>(() => InternalBuild(input));
+        }
+
+        private Graph InternalBuild(DefaultOsmPbfGraphBuilderInput input)
+        {
+
         }
     }
 }
