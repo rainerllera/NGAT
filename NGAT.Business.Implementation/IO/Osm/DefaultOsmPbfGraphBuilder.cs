@@ -94,7 +94,11 @@ namespace NGAT.Business.Implementation.IO.Osm
                     {
                         //Way passes all filters so we process it and fetch the attributes needed
                         var fetchedArcAttributes = input.ArcAttributeFetchersCollection.FetchWhiteListed(attributes);
-
+                        var arcData = new ArcData()
+                        {
+                            RawData = Newtonsoft.Json.JsonConvert.SerializeObject(fetchedArcAttributes)
+                        };
+                        result.AddArcData(arcData);
                         //Determinig if this way is one-way and if it is, determining it direction
                         bool oneWay = attributes.ContainsKey("oneway")
                             && attributes["oneway"].ToLowerInvariant() != "no"
@@ -110,15 +114,15 @@ namespace NGAT.Business.Implementation.IO.Osm
                         {
                             #region One Way
                             //Way is one way, adding arcs in corresponding direction
-                            ProcessWay(result, osmWay, forwardDirection, fetchedArcAttributes, notAddedNodes);
+                            ProcessWay(result, osmWay, forwardDirection, arcData, notAddedNodes);
                             #endregion
                         }
                         else
                         {
                             #region Both ways
                             //Way is not one way, adding arcs in both directions
-                            ProcessWay(result, osmWay, true, fetchedArcAttributes, notAddedNodes);
-                            ProcessWay(result, osmWay, false, fetchedArcAttributes, notAddedNodes);
+                            ProcessWay(result, osmWay, true, arcData, notAddedNodes);
+                            ProcessWay(result, osmWay, false, arcData, notAddedNodes);
                             #endregion
 
 
@@ -139,9 +143,9 @@ namespace NGAT.Business.Implementation.IO.Osm
         /// <param name="result">The graph being build.</param>
         /// <param name="osmWay">The OSM way to read nodes from</param>
         /// <param name="forward">A value indicating if the processing should be made in the same order as the way</param>
-        /// <param name="fetchedArcAttributes">The fetched arc attributes for this way</param>
+        /// <param name="arcData">The fetched arc attributes for this way</param>
         /// <param name="notAddedNodes">The nodes that didn't pass the filters, bu might still be part of a way, necessary for distance calculations.</param>
-        private void ProcessWay(Graph result, OsmSharp.Way osmWay, bool forward, IDictionary<string, string> fetchedArcAttributes, IDictionary<long,OsmSharp.Node> notAddedNodes)
+        private void ProcessWay(Graph result, OsmSharp.Way osmWay, bool forward, ArcData arcData, IDictionary<long,OsmSharp.Node> notAddedNodes)
         {
             var fromNodeId = forward ? osmWay.Nodes[0] : osmWay.Nodes[osmWay.Nodes.Length - 1];
             var initialIterator = forward ? 1 : osmWay.Nodes.Length - 2;
@@ -154,7 +158,7 @@ namespace NGAT.Business.Implementation.IO.Osm
                 if (result.VertexToNodesIndex.ContainsKey(fromNodeId) && result.VertexToNodesIndex.ContainsKey(toNodeId))
                 {
                     //Both nodes were added to the graph, so we process the arc
-                    result.AddArc(fromNodeId, toNodeId, fetchedArcAttributes);
+                    result.AddArc(fromNodeId, toNodeId, arcData);
                     fromNodeId = toNodeId;
                 }
                 else if (result.VertexToNodesIndex.ContainsKey(fromNodeId))
@@ -180,7 +184,7 @@ namespace NGAT.Business.Implementation.IO.Osm
                     //and that does not imply that we stored toNodeId
                     if (foundFlag && accumulatedDistance > 0 && result.VertexToNodesIndex.ContainsKey(toNodeId))
                     {
-                        result.AddArc(fromNodeId, toNodeId, accumulatedDistance, fetchedArcAttributes);
+                        result.AddArc(fromNodeId, toNodeId, accumulatedDistance, arcData);
                         fromNodeId = toNodeId;
                     }
                     else

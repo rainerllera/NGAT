@@ -74,11 +74,17 @@ namespace NGAT.Business.Tests.Graphs
             Assert.True(graph.Nodes.Count == 10);
             Assert.True(graph.VertexToNodesIndex.Count == 10);
             Dictionary<string, string> fetchedattrs = new Dictionary<string, string>();
-            graph.AddArc(1, 3, fetchedattrs);
-            graph.AddArc(1, 4, fetchedattrs);
-            graph.AddArc(4, 3, fetchedattrs);
-            graph.AddArc(4, 1, fetchedattrs);
-            graph.AddArc(3, 6, fetchedattrs);
+            var arcData = new ArcData()
+            {
+                RawData = Newtonsoft.Json.JsonConvert.SerializeObject(fetchedattrs)
+            };
+            graph.AddArcData(arcData);
+
+            graph.AddArc(1, 3, arcData);
+            graph.AddArc(1, 4, arcData);
+            graph.AddArc(4, 3, arcData);
+            graph.AddArc(4, 1, arcData);
+            graph.AddArc(3, 6, arcData);
 
             //Verifying arcs were added correctly
             Assert.True(graph.ArcsIndex[1].FromNodeId == graph.VertexToNodesIndex[1] && graph.ArcsIndex[1].ToNodeId == graph.VertexToNodesIndex[3]);
@@ -95,7 +101,7 @@ namespace NGAT.Business.Tests.Graphs
             Assert.True(graph.NodesIndex[1].IncomingArcs[0].FromNodeId == 4);
 
             //testing distances
-            graph.AddArc(1, 6, 5000, fetchedattrs);
+            graph.AddArc(1, 6, 5000, arcData);
 
             Assert.True(graph.ArcsIndex[6].Distance == 5000);
             Assert.True(graph.ArcsIndex[2].Distance == graph.ArcsIndex[4].Distance);
