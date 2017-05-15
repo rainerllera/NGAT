@@ -96,11 +96,11 @@ namespace NGAT.Business.Domain.Core
         /// <param name="fromOriginalNodeId">The Id of the origin point from data source</param>
         /// <param name="toOriginalNodeId">The Id of the destination point from data source</param>
         /// <param name="fetchedArcAttributes">The attributes to store for this arc</param>
-        public void AddArc(long fromOriginalNodeId, long toOriginalNodeId, IDictionary<string, string> fetchedArcAttributes)
+        public void AddArc(long fromOriginalNodeId, long toOriginalNodeId, double distance, IDictionary<string, string> fetchedArcAttributes)
         {
             var fromNode = NodesIndex[VertexToNodesIndex[fromOriginalNodeId]];
             var toNode = NodesIndex[VertexToNodesIndex[toOriginalNodeId]];
-            AddArc(fromNode, toNode, fetchedArcAttributes);
+            AddArc(fromNode, toNode, distance, fetchedArcAttributes);
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace NGAT.Business.Domain.Core
         /// <param name="fromNode">The origin node</param>
         /// <param name="toNode">The destination node</param>
         /// <param name="fetchedArcAttributes">The attributes to store for this arc</param>
-        private void AddArc(Node fromNode, Node toNode, IDictionary<string, string> fetchedArcAttributes)
+        private void AddArc(Node fromNode, Node toNode, double distance, IDictionary<string, string> fetchedArcAttributes)
         {
             var newArc = new Arc()
             {
@@ -120,6 +120,7 @@ namespace NGAT.Business.Domain.Core
                 ToNodeId = toNode.Id,
                 Graph = this,
                 GraphId = this.Id,
+                Distance = distance,
                 Id = this.Arcs.Count + 1
             };
             fromNode.OutgoingArcs.Add(newArc);
