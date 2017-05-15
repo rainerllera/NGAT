@@ -25,10 +25,11 @@ namespace NGAT.Business.Tests.Graphs
             };
             long originalId = 289912;
 
-            var fetchedAttributes = new Dictionary<string, string>();
-            fetchedAttributes.Add("name", "NodeName");
-            fetchedAttributes.Add("age", "64");
-
+            var fetchedAttributes = new Dictionary<string, string>
+            {
+                { "name", "NodeName" },
+                { "age", "64" }
+            };
             graph.AddNode(newNode, originalId, fetchedAttributes);
 
             Assert.True(graph.VertexToNodesIndex.ContainsKey(originalId));
@@ -62,10 +63,11 @@ namespace NGAT.Business.Tests.Graphs
                 };
                 long originalId = (long)i;
 
-                var fetchedAttributes = new Dictionary<string, string>();
-                fetchedAttributes.Add("name", "NodeName" + i.ToString());
-                fetchedAttributes.Add("age", i.ToString());
-
+                var fetchedAttributes = new Dictionary<string, string>
+                {
+                    { "name", "NodeName" + i.ToString() },
+                    { "age", i.ToString() }
+                };
                 graph.AddNode(newNode, originalId, fetchedAttributes);
             }
 
