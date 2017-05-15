@@ -13,6 +13,7 @@ namespace NGAT.Business.Domain.Core
         public Graph()
         {
             this.ArcDataIndex = new SortedDictionary<int, ArcData>();
+            this.ArcDatas = new List<ArcData>();
             this.VertexToNodesIndex = new SortedDictionary<long, int>();
             this.NodesIndex = new SortedDictionary<int, Node>();
             this.ArcsIndex = new SortedDictionary<int, Arc>();
@@ -189,6 +190,7 @@ namespace NGAT.Business.Domain.Core
         {
             arcData.Id = ArcDataIndex.Count;
             ArcDataIndex.Add(arcData.Id, arcData);
+            ArcDatas.Add(arcData);
         }
         #endregion
         #endregion

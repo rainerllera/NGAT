@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace NGAT.Business.Domain.Core
 {
-    public class ArcData : Entity<int>
+    public class ArcData : GraphDependantEntity
     {
         public IDictionary<string, string> Attributes { get
             {

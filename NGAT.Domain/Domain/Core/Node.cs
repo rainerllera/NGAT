@@ -22,7 +22,7 @@ namespace NGAT.Business.Domain.Core
         public GeoCoordinate Coordinate {
             get
             {
-                return _coordinate ?? (_coordinate = new GeoCoordinate(this.Latitude, this.Longitude));
+                return new GeoCoordinate(this.Latitude, this.Longitude);
             }
         }
 
@@ -47,7 +47,7 @@ namespace NGAT.Business.Domain.Core
         /// </summary>
         public IDictionary<string, string> NodeAttributes { get
             {
-                return _nodeAttributes ?? (_nodeAttributes = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(this.NodeData));
+                return Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(this.NodeData);
             }
         }
 
