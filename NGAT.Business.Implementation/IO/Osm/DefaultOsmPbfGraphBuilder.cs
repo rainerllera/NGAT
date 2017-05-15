@@ -102,72 +102,74 @@ namespace NGAT.Business.Implementation.IO.Osm
                         {
                             #region One Way
                             //Way is one way, adding arcs according to direction
-                            var fromNodeId = forwardDirection ? osmWay.Nodes[0] : osmWay.Nodes[osmWay.Nodes.Length - 1];
-                            var initialIterator = forwardDirection ? 1 : osmWay.Nodes.Length - 2;
-                            int iteratorModifier = forwardDirection ? 1 : -1;
+                            //var fromNodeId = forwardDirection ? osmWay.Nodes[0] : osmWay.Nodes[osmWay.Nodes.Length - 1];
+                            //var initialIterator = forwardDirection ? 1 : osmWay.Nodes.Length - 2;
+                            //int iteratorModifier = forwardDirection ? 1 : -1;
 
-                            for (int i = initialIterator; forwardDirection ? i < osmWay.Nodes.Length : i >= 0; i+=iteratorModifier)
-                            {
-                                var toNodeId = osmWay.Nodes[i];
+                            //for (int i = initialIterator; forwardDirection ? i < osmWay.Nodes.Length : i >= 0; i+=iteratorModifier)
+                            //{
+                            //    var toNodeId = osmWay.Nodes[i];
 
-                                if (result.VertexToNodesIndex.ContainsKey(fromNodeId) && result.VertexToNodesIndex.ContainsKey(toNodeId))
-                                {
-                                    //Both nodes were added to the graph, so we process the arc
-                                    result.AddArc(fromNodeId, toNodeId, fetchedArcAttributes);
-                                    fromNodeId = toNodeId;
-                                }
-                                else if(result.VertexToNodesIndex.ContainsKey(fromNodeId))
-                                {
-                                    //The originNode was stored, but not the destination, so we iterate trhough the way untill a stored node is found
-                                    double accumulatedDistance = 0;
-                                    var fromNode = result.NodesIndex[result.VertexToNodesIndex[fromNodeId]];
+                            //    if (result.VertexToNodesIndex.ContainsKey(fromNodeId) && result.VertexToNodesIndex.ContainsKey(toNodeId))
+                            //    {
+                            //        //Both nodes were added to the graph, so we process the arc
+                            //        result.AddArc(fromNodeId, toNodeId, fetchedArcAttributes);
+                            //        fromNodeId = toNodeId;
+                            //    }
+                            //    else if(result.VertexToNodesIndex.ContainsKey(fromNodeId))
+                            //    {
+                            //        //The originNode was stored, but not the destination, so we iterate trhough the way untill a stored node is found
+                            //        double accumulatedDistance = 0;
+                            //        var fromNode = result.NodesIndex[result.VertexToNodesIndex[fromNodeId]];
 
-                                    OsmSharp.Node toNode;
-                                    bool foundFlag = true;
-                                    while (notAddedNodes.TryGetValue(toNodeId, out toNode))
-                                    {
-                                        accumulatedDistance += fromNode.Coordinate.GetDistanceTo(new GeoCoordinatePortable.GeoCoordinate(toNode.Latitude.Value, toNode.Longitude.Value));
-                                        i += iteratorModifier;
-                                        if (forwardDirection ? i < osmWay.Nodes.Length : i >= 0)
-                                        {
-                                            foundFlag = false;
-                                            break;
-                                        }
-                                        toNodeId = osmWay.Nodes[i];
-                                    }
-                                    if (foundFlag)
-                                    {
-                                        result.AddArc(fromNodeId, toNodeId, accumulatedDistance, fetchedArcAttributes);
-                                        fromNodeId = toNodeId;
-                                    }
-                                    else
-                                    {
-                                        //This way is worthless, we skip it completly
-                                        break;
-                                    }
-                                    
-                                }
-                                else
-                                {
-                                    //Neither the origin node nor the destination node were stored, so we'll store whatever we can about this way
-                                    int fromInternalNodeId;
-                                    while (!result.VertexToNodesIndex.TryGetValue(fromNodeId, out fromInternalNodeId))
-                                    {
-                                        //We skip
-                                        i += iteratorModifier;
-                                        fromNodeId = osmWay.Nodes[i];
-                                    }
-                                }
+                            //        OsmSharp.Node toNode;
+                            //        bool foundFlag = true;
+                            //        while (notAddedNodes.TryGetValue(toNodeId, out toNode))
+                            //        {
+                            //            accumulatedDistance += fromNode.Coordinate.GetDistanceTo(new GeoCoordinatePortable.GeoCoordinate(toNode.Latitude.Value, toNode.Longitude.Value));
+                            //            i += iteratorModifier;
+                            //            if (forwardDirection ? i < osmWay.Nodes.Length : i >= 0)
+                            //            {
+                            //                foundFlag = false;
+                            //                break;
+                            //            }
+                            //            toNodeId = osmWay.Nodes[i];
+                            //        }
+                            //        if (foundFlag)
+                            //        {
+                            //            result.AddArc(fromNodeId, toNodeId, accumulatedDistance, fetchedArcAttributes);
+                            //            fromNodeId = toNodeId;
+                            //        }
+                            //        else
+                            //        {
+                            //            //This way is worthless, we skip it completly
+                            //            break;
+                            //        }
 
-                                
-                            }
+                            //    }
+                            //    else
+                            //    {
+                            //        //Neither the origin node nor the destination node were stored, so we'll store whatever we can about this way
+                            //        int fromInternalNodeId;
+                            //        while (!result.VertexToNodesIndex.TryGetValue(fromNodeId, out fromInternalNodeId))
+                            //        {
+                            //            //We skip
+                            //            i += iteratorModifier;
+                            //            fromNodeId = osmWay.Nodes[i];
+                            //        }
+                            //    }
+
+
+                            //}
                             #endregion
+                            ProcessWay(result, osmWay, forwardDirection, fetchedArcAttributes, notAddedNodes);
                         }
                         else
                         {
                             #region Both ways
                             //Way is not one way, adding arcs in both directions
-
+                            ProcessWay(result, osmWay, true, fetchedArcAttributes, notAddedNodes);
+                            ProcessWay(result, osmWay, false, fetchedArcAttributes, notAddedNodes);
                             #endregion
 
 
@@ -180,6 +182,71 @@ namespace NGAT.Business.Implementation.IO.Osm
             }
 
             return result;
+        }
+        private void ProcessWay(Graph result, OsmSharp.Way osmWay, bool forward, IDictionary<string, string> fetchedArcAttributes, IDictionary<long,OsmSharp.Node> notAddedNodes)
+        {
+            var fromNodeId = forward ? osmWay.Nodes[0] : osmWay.Nodes[osmWay.Nodes.Length - 1];
+            var initialIterator = forward ? 1 : osmWay.Nodes.Length - 2;
+            int iteratorModifier = forward ? 1 : -1;
+
+            for (int i = initialIterator; forward ? i < osmWay.Nodes.Length : i >= 0; i += iteratorModifier)
+            {
+                var toNodeId = osmWay.Nodes[i];
+
+                if (result.VertexToNodesIndex.ContainsKey(fromNodeId) && result.VertexToNodesIndex.ContainsKey(toNodeId))
+                {
+                    //Both nodes were added to the graph, so we process the arc
+                    result.AddArc(fromNodeId, toNodeId, fetchedArcAttributes);
+                    fromNodeId = toNodeId;
+                }
+                else if (result.VertexToNodesIndex.ContainsKey(fromNodeId))
+                {
+                    //The originNode was stored, but not the destination, so we iterate trhough the way untill a stored node is found
+                    double accumulatedDistance = 0;
+                    var fromNode = result.NodesIndex[result.VertexToNodesIndex[fromNodeId]];
+
+                    OsmSharp.Node toNode;
+                    bool foundFlag = true;
+                    while (notAddedNodes.TryGetValue(toNodeId, out toNode))
+                    {
+                        accumulatedDistance += fromNode.Coordinate.GetDistanceTo(new GeoCoordinatePortable.GeoCoordinate(toNode.Latitude.Value, toNode.Longitude.Value));
+                        i += iteratorModifier;
+                        if (forward ? i < osmWay.Nodes.Length : i >= 0)
+                        {
+                            foundFlag = false;
+                            break;
+                        }
+                        toNodeId = osmWay.Nodes[i];
+                    }
+                    if (foundFlag)
+                    {
+                        result.AddArc(fromNodeId, toNodeId, accumulatedDistance, fetchedArcAttributes);
+                        fromNodeId = toNodeId;
+                    }
+                    else
+                    {
+                        //This way is worthless, we skip it completly
+                        break;
+                    }
+
+                }
+                else
+                {
+                    //Neither the origin node nor the destination node were stored, so we'll store whatever we can about this way
+                    //That is, we'll look up the first stored node in the way, if any, and try to process the rest of the way
+                   
+                    while (!result.VertexToNodesIndex.ContainsKey(fromNodeId))
+                    {
+                        //We skip
+                        i += iteratorModifier;
+                        if (forward ? i < osmWay.Nodes.Length : i >= 0)
+                            break;
+                        fromNodeId = osmWay.Nodes[i];
+                    }
+                }
+
+
+            }
         }
     }
 }
