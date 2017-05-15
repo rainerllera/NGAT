@@ -46,6 +46,12 @@ namespace NGAT.Business.Domain.Core
         #endregion
 
         #region Methods
+        /// <summary>
+        /// Adds a node to this graph
+        /// </summary>
+        /// <param name="node">The node to add</param>
+        /// <param name="originalId">The original Id of the node object in its original data source</param>
+        /// <param name="fetchedAttributes">The attributes to stores for this node</param>
         public void AddNode(Node node, long originalId, IDictionary<string, string> fetchedAttributes)
         {
             if(!this.NodesIndex.ContainsKey(node.Coordinate.GetHashCode()))
