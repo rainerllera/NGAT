@@ -16,7 +16,7 @@ namespace NGAT.Business.Domain.Core
             this.ArcDatas = new List<ArcData>();
             //this.VertexToNodesIndex = new SortedDictionary<long, int>();
             this.NodesIndex = new SortedDictionary<int, Node>();
-            this.ArcsIndex = new SortedDictionary<int, Arc>();
+            //this.ArcsIndex = new SortedDictionary<int, Arc>();
             this.Nodes = new List<Node>();
             this.Arcs = new List<Arc>();
         }
@@ -36,7 +36,7 @@ namespace NGAT.Business.Domain.Core
         /// <summary>
         /// The Arcs of this Graph (in Dictionary format, for indexing)
         /// </summary>
-        public virtual IDictionary<int, Arc> ArcsIndex { get; set; }
+        //public virtual IDictionary<int, Arc> ArcsIndex { get; set; }
 
         /// <summary>
         /// The nodes of this graph
@@ -151,7 +151,7 @@ namespace NGAT.Business.Domain.Core
             fromNode.OutgoingArcs.Add(newArc);
             toNode.IncomingArcs.Add(newArc);
             Arcs.Add(newArc);
-            ArcsIndex.Add(newArc.Id, newArc);
+            //ArcsIndex.Add(newArc.Id, newArc);
         }
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace NGAT.Business.Domain.Core
             fromNode.OutgoingArcs.Add(newArc);
             toNode.IncomingArcs.Add(newArc);
             Arcs.Add(newArc);
-            ArcsIndex.Add(newArc.Id, newArc);
+            //ArcsIndex.Add(newArc.Id, newArc);
         }
 
         /// <summary>
