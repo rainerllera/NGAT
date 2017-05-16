@@ -12,7 +12,7 @@ namespace NGAT.Business.Domain.Core
     {
         public Graph()
         {
-            this.ArcDataIndex = new SortedDictionary<int, ArcData>();
+            //this.ArcDataIndex = new SortedDictionary<int, ArcData>();
             this.ArcDatas = new List<ArcData>();
             //this.VertexToNodesIndex = new SortedDictionary<long, int>();
             this.NodesIndex = new SortedDictionary<int, Node>();
@@ -22,7 +22,7 @@ namespace NGAT.Business.Domain.Core
         }
 
         #region Properties
-        public virtual IDictionary<int, ArcData> ArcDataIndex { get; set; }
+        //public virtual IDictionary<int, ArcData> ArcDataIndex { get; set; }
         /// <summary>
         /// A mapping to represent the conversion from original points from a map, to graph nodes
         /// </summary>
@@ -187,8 +187,8 @@ namespace NGAT.Business.Domain.Core
         /// <param name="arcData">The object to index</param>
         public void AddArcData(ArcData arcData)
         {
-            arcData.Id = ArcDataIndex.Count;
-            ArcDataIndex.Add(arcData.Id, arcData);
+            arcData.Id = ArcDatas.Count + 1;
+            //ArcDataIndex.Add(arcData.Id, arcData);
             ArcDatas.Add(arcData);
         }
         #endregion
