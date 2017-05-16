@@ -7,6 +7,7 @@ using NGAT.Business.Contracts.Filters;
 using NGAT.Business.Implementation.IO.Osm.Inputs;
 using NGAT.Business.Implementation.IO.Osm;
 using System.IO;
+using System.Linq;
 
 namespace NGAT.Business.Tests.GraphBuilders.Osm
 {
@@ -68,12 +69,28 @@ namespace NGAT.Business.Tests.GraphBuilders.Osm
         [Fact]
         public void DefaultOsmPbfGraphBuilder_Build_Tests()
         {
-            var defautlInput = new DefaultOsmPbfGraphBuilderInput(Path.Combine(AppContext.BaseDirectory, "cuba-latest.osm.pbf"), NodeFilterCollection, NodeFetchersCollection, ArcFilterCollection, ArcFetchersCollection);
+            //var defautlInput = new DefaultOsmPbfGraphBuilderInput(Path.Combine(AppContext.BaseDirectory, "cuba-latest.osm.pbf"), NodeFilterCollection, NodeFetchersCollection, ArcFilterCollection, ArcFetchersCollection);
+            var defautlInput = new DefaultOsmPbfGraphBuilderInput(Path.Combine(AppContext.BaseDirectory, "api.osm.pbf"), NodeFilterCollection, NodeFetchersCollection, ArcFilterCollection, ArcFetchersCollection);
             var builder = new DefaultOsmPbfGraphBuilder();
 
             var graph = builder.Build(defautlInput);
             
             Assert.NotNull(graph);
+
+            //Checking that arcs are all well-formed
+            foreach (var arc in graph.Arcs)
+            {
+                var fromId = arc.FromNodeId;
+                var toId = arc.ToNodeId;
+
+                Assert.True(graph.NodesIndex.ContainsKey(fromId) && graph.NodesIndex.ContainsKey(toId));
+                Assert.True(graph.NodesIndex[fromId].OutgoingArcs.Any(a => a.FromNodeId == fromId && a.ToNodeId == toId));
+                Assert.True(graph.NodesIndex[toId].IncomingArcs.Any(a => a.FromNodeId == fromId && a.ToNodeId == toId));
+                Assert.True(graph.Arcs[arc.Id - 1].Equals(arc));
+            }
+
+            //Checking all nodes belong to at least an arc
+            Assert.True(graph.Nodes.All(n => n.IncomingArcs.Count > 0 || n.OutgoingArcs.Count > 0));
             
         }
     }
