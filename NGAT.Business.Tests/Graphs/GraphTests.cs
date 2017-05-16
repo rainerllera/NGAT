@@ -103,8 +103,8 @@ namespace NGAT.Business.Tests.Graphs
             //testing distances
             graph.AddArc(1, 6, 5000, arcData);
 
-            Assert.True(graph.ArcsIndex[6].Distance == 5000);
-            Assert.True(graph.ArcsIndex[2].Distance == graph.ArcsIndex[4].Distance);
+            Assert.True(graph.Arcs[6 - 1].Distance == 5000);
+            Assert.True(graph.Arcs[2 - 1].Distance == graph.Arcs[4 - 1].Distance);
 
         }
     }
