@@ -3,7 +3,61 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NGAT.Business", "NGAT.Domain\NGAT.Business.csproj", "{E952F82E-95A8-45B7-8C87-B7E28DCAE204}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NGAT.Business.Tests", "NGAT.Business.Tests\NGAT.Business.Tests.csproj", "{B9361187-1FE4-4269-A93B-E192F7171AFC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NGAT.Api", "NGAT.Api\NGAT.Api.csproj", "{8808B1F9-F406-4E8C-98DC-E33D78469F19}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NGAT.Api.Tests", "NGAT.Api.Tests\NGAT.Api.Tests.csproj", "{9D52704D-281B-4091-9F15-9B493E86DC0A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NGAT.DataAccess", "NGAT.DataAccess\NGAT.DataAccess.csproj", "{E28F94D4-52C2-4712-8F07-DDB63BFB6441}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NGAT.Business.Implementation", "NGAT.Business.Implementation\NGAT.Business.Implementation.csproj", "{6C9D7939-7872-4A1B-9628-8CF71E104330}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NGAT.DataAccess.Implementation", "NGAT.DataAccess.Implementation\NGAT.DataAccess.Implementation.csproj", "{8F302061-1DD9-4925-9F78-736C855A1319}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NGAT.DataAccess.Tests", "NGAT.DataAccess.Tests\NGAT.DataAccess.Tests.csproj", "{ACEC91CE-25F7-445C-9943-E18BBA1509ED}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E952F82E-95A8-45B7-8C87-B7E28DCAE204}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E952F82E-95A8-45B7-8C87-B7E28DCAE204}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E952F82E-95A8-45B7-8C87-B7E28DCAE204}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E952F82E-95A8-45B7-8C87-B7E28DCAE204}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9361187-1FE4-4269-A93B-E192F7171AFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9361187-1FE4-4269-A93B-E192F7171AFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9361187-1FE4-4269-A93B-E192F7171AFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9361187-1FE4-4269-A93B-E192F7171AFC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8808B1F9-F406-4E8C-98DC-E33D78469F19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8808B1F9-F406-4E8C-98DC-E33D78469F19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8808B1F9-F406-4E8C-98DC-E33D78469F19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8808B1F9-F406-4E8C-98DC-E33D78469F19}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D52704D-281B-4091-9F15-9B493E86DC0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D52704D-281B-4091-9F15-9B493E86DC0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D52704D-281B-4091-9F15-9B493E86DC0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D52704D-281B-4091-9F15-9B493E86DC0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E28F94D4-52C2-4712-8F07-DDB63BFB6441}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E28F94D4-52C2-4712-8F07-DDB63BFB6441}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E28F94D4-52C2-4712-8F07-DDB63BFB6441}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E28F94D4-52C2-4712-8F07-DDB63BFB6441}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C9D7939-7872-4A1B-9628-8CF71E104330}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C9D7939-7872-4A1B-9628-8CF71E104330}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C9D7939-7872-4A1B-9628-8CF71E104330}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C9D7939-7872-4A1B-9628-8CF71E104330}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F302061-1DD9-4925-9F78-736C855A1319}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F302061-1DD9-4925-9F78-736C855A1319}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F302061-1DD9-4925-9F78-736C855A1319}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F302061-1DD9-4925-9F78-736C855A1319}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACEC91CE-25F7-445C-9943-E18BBA1509ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACEC91CE-25F7-445C-9943-E18BBA1509ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACEC91CE-25F7-445C-9943-E18BBA1509ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACEC91CE-25F7-445C-9943-E18BBA1509ED}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
