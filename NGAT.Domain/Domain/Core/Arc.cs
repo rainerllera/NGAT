@@ -1,4 +1,5 @@
 ﻿using NGAT.Business.Domain.Base;
+using System.Collections.Generic;
 
 namespace NGAT.Business.Domain.Core
 {
@@ -28,8 +29,19 @@ namespace NGAT.Business.Domain.Core
         public Node ToNode { get; set; }
 
         /// <summary>
-        /// The Data related to this Arc. i.e: Distance, maxspeed, etc
+        /// The distance this arc covers
         /// </summary>
-        public string ArcData { get; set; }
+        public double Distance { get; set; }
+
+        /// <summary>
+        /// The id of the data for this arc
+        /// </summary>
+        public int ArcDataId { get; set; }
+
+        /// <summary>
+        /// The data for this arc
+        /// </summary>
+        public ArcData ArcData { get; set; }
+
     }
 }
