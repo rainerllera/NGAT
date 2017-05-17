@@ -17,7 +17,7 @@ namespace NGAT.Business.Domain.Base
     /// <summary>
     /// Default Entity, with ulong as type for the Id
     /// </summary>
-    public class Entity : Entity<ulong>
+    public class Entity : Entity<int>
     {
 
     }
@@ -42,7 +42,7 @@ namespace NGAT.Business.Domain.Base
     /// <summary>
     /// Default GraphDependantEntity
     /// </summary>
-    public class GraphDependantEntity : GraphDependantEntity<ulong>
+    public class GraphDependantEntity : GraphDependantEntity<int>
     {
 
     }
