@@ -292,3 +292,5 @@ __pycache__/
 *.xsd.cs
 cuba-latest.osm.pbf
 
+
+*.orig
