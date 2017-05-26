@@ -29,6 +29,7 @@ namespace NGAT.Api
         {
             // Add framework services.
             services.AddMvc();
+            services.AddSwaggerGen();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -38,6 +39,8 @@ namespace NGAT.Api
             loggerFactory.AddDebug();
 
             app.UseMvc();
+            app.UseSwagger();
+            app.UseSwaggerUI();
         }
     }
 }
