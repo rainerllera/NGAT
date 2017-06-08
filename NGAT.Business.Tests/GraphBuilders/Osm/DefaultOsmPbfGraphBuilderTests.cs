@@ -69,8 +69,8 @@ namespace NGAT.Business.Tests.GraphBuilders.Osm
         [Fact]
         public void DefaultOsmPbfGraphBuilder_Build_Tests()
         {
-            //var defautlInput = new DefaultOsmPbfGraphBuilderInput(Path.Combine(AppContext.BaseDirectory, "cuba-latest.osm.pbf"), NodeFilterCollection, NodeFetchersCollection, ArcFilterCollection, ArcFetchersCollection);
-            var defautlInput = new DefaultOsmPbfGraphBuilderInput(Path.Combine(AppContext.BaseDirectory, "api.osm.pbf"), NodeFilterCollection, NodeFetchersCollection, ArcFilterCollection, ArcFetchersCollection);
+            var defautlInput = new DefaultOsmPbfGraphBuilderInput(Path.Combine(AppContext.BaseDirectory, "cuba-latest.osm.pbf"), NodeFilterCollection, NodeFetchersCollection, ArcFilterCollection, ArcFetchersCollection);
+            //var defautlInput = new DefaultOsmPbfGraphBuilderInput(Path.Combine(AppContext.BaseDirectory, "api.osm.pbf"), NodeFilterCollection, NodeFetchersCollection, ArcFilterCollection, ArcFetchersCollection);
             var builder = new DefaultOsmPbfGraphBuilder();
 
             var graph = builder.Build(defautlInput);
@@ -91,7 +91,39 @@ namespace NGAT.Business.Tests.GraphBuilders.Osm
 
             //Checking all nodes belong to at least an arc
             Assert.True(graph.Nodes.All(n => n.IncomingArcs.Count > 0 || n.OutgoingArcs.Count > 0));
+
             
+
+            var nodes = graph.Nodes.Where(a => a.Longitude <= -82.35806465148926 && a.Latitude <= 23.145805714137563 && a.Longitude >= -82.37866401672363 && a.Latitude >= 23.122363841245967);
+            Assert.True(nodes.Count() != 0);
+            using (var file = File.OpenWrite("featurescuba.geojson"))
+            {
+                using (var tw = new StreamWriter(file))
+                {
+                    tw.Write("{\"type\":\"FeatureCollection\",\"features\":");
+                    tw.Write("[");
+                    bool flag = true;
+                    foreach (var node in nodes)
+                    {
+                        if (!flag)
+                            tw.Write(",");
+                        var arcs = node.OutgoingArcs;//.Arcs.Where(a => a.FromNodeId == node.Id);//.Where(a => a.FromNode.Latitude <= -82.35806465148926 && a.FromNode.Longitude <= 23.145805714137563 && a.ToNode.Latitude >= -82.37866401672363 && a.ToNode.Longitude >= 23.122363841245967);
+                        foreach (var arc in arcs)
+                        {
+                            tw.Write("{ \"type\":\"Feature\",\"properties\":{ },\"geometry\":{ \"type\":\"LineString\",\"coordinates\":[[" + arc.FromNode.Longitude + "," + arc.FromNode.Latitude + "],[" + arc.ToNode.Longitude + "," + arc.ToNode.Latitude + "]]}},");
+                        }
+                        tw.Write("{ \"type\":\"Feature\",\"properties\":{ },\"geometry\":{ \"type\":\"Point\",\"coordinates\":[" + node.Longitude + "," + node.Latitude + "]}}");
+                        flag = false;
+                    }
+
+                    tw.Write("]");
+
+                    tw.Write("}");
+
+
+                    
+                }
+            }
         }
     }
 }
