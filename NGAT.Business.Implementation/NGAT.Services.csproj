@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp1.1</TargetFramework>
+    <AssemblyName>NGAT.Services</AssemblyName>
+    <RootNamespace>NGAT.Services</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,6 +13,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NGAT.Domain\NGAT.Business.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ApplicationServices\" />
   </ItemGroup>
 
 </Project>

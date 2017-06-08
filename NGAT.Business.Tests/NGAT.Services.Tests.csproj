@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NGAT.Business.Implementation\NGAT.Business.Implementation.csproj" />
+    <ProjectReference Include="..\NGAT.Business.Implementation\NGAT.Services.csproj" />
     <ProjectReference Include="..\NGAT.Domain\NGAT.Business.csproj" />
   </ItemGroup>
 
