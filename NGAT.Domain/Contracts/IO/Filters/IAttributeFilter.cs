@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace NGAT.Business.Contracts.Filters
+namespace NGAT.Business.Contracts.IO.Filters
 {
     /// <summary>
     /// Abstract representation of a Node Filter by Attributtes.

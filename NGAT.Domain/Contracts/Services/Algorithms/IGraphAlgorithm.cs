@@ -1,6 +1,6 @@
 ﻿using NGAT.Business.Contracts.Common;
 
-namespace NGAT.Business.Contracts.Algorithms
+namespace NGAT.Business.Contracts.Services.Algorithms
 {
     /// <summary>
     /// Represents an algorithm that receives a Graph as an input argument

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace NGAT.Business.Contracts.Filters
+namespace NGAT.Business.Contracts.IO.Filters
 {
     /// <summary>
     /// Represents a collection of node filters

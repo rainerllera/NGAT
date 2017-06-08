@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Xunit;
 using Moq;
-using NGAT.Business.Contracts.Filters;
+using NGAT.Business.Contracts.IO.Filters;
 using NGAT.Business.Implementation.IO.Osm.Inputs;
 using NGAT.Business.Implementation.IO.Osm;
 using System.IO;

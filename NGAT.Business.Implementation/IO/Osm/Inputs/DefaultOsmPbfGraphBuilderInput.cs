@@ -1,5 +1,5 @@
 ﻿using System;
-using NGAT.Business.Contracts.Filters;
+using NGAT.Business.Contracts.IO.Filters;
 
 namespace NGAT.Business.Implementation.IO.Osm.Inputs
 {
