@@ -15,8 +15,4 @@
     <ProjectReference Include="..\NGAT.Domain\NGAT.Business.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ApplicationServices\" />
-  </ItemGroup>
-
 </Project>
