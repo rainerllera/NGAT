@@ -69,9 +69,9 @@ namespace NGAT.Business.Tests.GraphBuilders.Osm
         [Fact]
         public void DefaultOsmPbfGraphBuilder_Build_Tests()
         {
-            var defautlInput = new DefaultOsmPbfGraphBuilderInput(Path.Combine(AppContext.BaseDirectory, "cuba-latest.osm.pbf"), NodeFilterCollection, NodeFetchersCollection, ArcFilterCollection, ArcFetchersCollection);
+            var defautlInput = new OsmPbfGraphBuilderInput(Path.Combine(AppContext.BaseDirectory, "cuba-latest.osm.pbf"), NodeFilterCollection, NodeFetchersCollection, ArcFilterCollection, ArcFetchersCollection);
             //var defautlInput = new DefaultOsmPbfGraphBuilderInput(Path.Combine(AppContext.BaseDirectory, "api.osm.pbf"), NodeFilterCollection, NodeFetchersCollection, ArcFilterCollection, ArcFetchersCollection);
-            var builder = new DefaultOsmPbfGraphBuilder();
+            var builder = new OsmPbfGraphBuilder();
 
             var graph = builder.Build(defautlInput);
             

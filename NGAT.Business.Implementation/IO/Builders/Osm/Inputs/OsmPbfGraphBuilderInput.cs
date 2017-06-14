@@ -6,9 +6,9 @@ namespace NGAT.Business.Implementation.IO.Osm.Inputs
     /// <summary>
     /// Represents the default input for the default OSM-Pbf graph builder
     /// </summary>
-    public class DefaultOsmPbfGraphBuilderInput
+    public class OsmPbfGraphBuilderInput
     {
-        public DefaultOsmPbfGraphBuilderInput(string filePath,
+        public OsmPbfGraphBuilderInput(string filePath,
             IAttributeFilterCollection nodeFilters,
             IAttributesFetcherCollection nodeAttributeFetchers,
             IAttributeFilterCollection arcFilters,

@@ -12,14 +12,14 @@ using System.Linq;
 namespace NGAT.Business.Implementation.IO.Osm
 {
     
-    public class DefaultOsmPbfGraphBuilder : IGraphBuilder<DefaultOsmPbfGraphBuilderInput>
+    public class OsmPbfGraphBuilder : IGraphBuilder<OsmPbfGraphBuilderInput>
     {
-        public Graph Build(DefaultOsmPbfGraphBuilderInput input)
+        public Graph Build(OsmPbfGraphBuilderInput input)
         {
             return InternalBuild(input);
         }
 
-        public Task<Graph> BuildAsync(DefaultOsmPbfGraphBuilderInput input)
+        public Task<Graph> BuildAsync(OsmPbfGraphBuilderInput input)
         {
             return new Task<Graph>(() => InternalBuild(input));
         }
@@ -29,7 +29,7 @@ namespace NGAT.Business.Implementation.IO.Osm
         /// </summary>
         /// <param name="input">Input for this GraphBuilder</param>
         /// <returns></returns>
-        private Graph InternalBuild(DefaultOsmPbfGraphBuilderInput input)
+        private Graph InternalBuild(OsmPbfGraphBuilderInput input)
         {
             if (!File.Exists(input.FilePath))
                 throw new ArgumentException("Pbf file specified is invalid or doesn't exists.");
