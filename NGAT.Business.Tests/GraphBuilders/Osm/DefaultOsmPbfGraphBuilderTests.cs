@@ -35,7 +35,11 @@ namespace NGAT.Business.Tests.GraphBuilders.Osm
             mockArcFilterCollection.Setup(i => i.ApplyAllFilters(It.IsAny<IDictionary<string, string>>()))
                 .Returns<IDictionary<string,string>>((i)=> {
                     
-                    return i.ContainsKey("highway") && (i["highway"].ToLowerInvariant()!="pedestrian" && i["highway"].ToLowerInvariant() != "footway");
+                    return i.ContainsKey("highway") 
+                    && (i["highway"].ToLowerInvariant()!="pedestrian"
+                    && i["highway"].ToLowerInvariant() != "footway"
+                    && i["highway"].ToLowerInvariant() != "steps"
+                    && i["highway"].ToLowerInvariant() != "service");
                 });
             ArcFilterCollection = mockArcFilterCollection.Object;
 
@@ -70,11 +74,10 @@ namespace NGAT.Business.Tests.GraphBuilders.Osm
         [Fact]
         public void DefaultOsmPbfGraphBuilder_Build_Tests()
         {
-            var defautlInput = new OsmPbfGraphBuilderInput(Path.Combine(AppContext.BaseDirectory, "cuba-latest.osm.pbf"), NodeFilterCollection, NodeFetchersCollection, ArcFilterCollection, ArcFetchersCollection);
-            //var defautlInput = new OsmPbfGraphBuilderInput(Path.Combine(AppContext.BaseDirectory, "api.osm.pbf"), NodeFilterCollection, NodeFetchersCollection, ArcFilterCollection, ArcFetchersCollection);
-            var builder = new OsmPbfGraphBuilder();
+            var builder = new OsmPbfGraphBuilder(new Uri(Path.Combine(AppContext.BaseDirectory, "cuba-latest.osm.pbf")), ArcFilterCollection, NodeFetchersCollection, ArcFetchersCollection);
+           // var builder = new OsmPbfGraphBuilder(new Uri(Path.Combine(AppContext.BaseDirectory, "api.osm.pbf")), ArcFilterCollection, NodeFetchersCollection, ArcFetchersCollection);
 
-            var graph = builder.Build(defautlInput);
+            var graph = builder.Build();
             
             Assert.NotNull(graph);
 
@@ -109,6 +112,10 @@ namespace NGAT.Business.Tests.GraphBuilders.Osm
 
             var nodes = graph.Nodes.Where(a => a.Longitude <= -82.35806465148926 && a.Latitude <= 23.145805714137563 && a.Longitude >= -82.37866401672363 && a.Latitude >= 23.122363841245967);
             Assert.True(nodes.Count() != 0);
+
+            Assert.True(graph.Edges.Where(e => e.LinkData.Attributes.ContainsKey("junction") && e.LinkData.Attributes["junction"] == "roundabout").Count() == 0);
+            Assert.True(graph.Arcs.Where(e => e.LinkData.Attributes.ContainsKey("junction") && e.LinkData.Attributes["junction"] == "roundabout").Count() != 0);
+
             var markedEdges = new Dictionary<int,bool>();
             using (var file = File.OpenWrite("features-cuba-with-geometries.geojson"))
             {

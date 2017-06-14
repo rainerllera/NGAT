@@ -8,30 +8,52 @@ using System.IO;
 using OsmSharp.Streams;
 using OsmSharp;
 using System.Linq;
+using NGAT.Business.Contracts.IO.Filters;
 
 namespace NGAT.Business.Implementation.IO.Osm
 {
     
-    public class OsmPbfGraphBuilder : IGraphBuilder<OsmPbfGraphBuilderInput>
+    public class OsmPbfGraphBuilder : IGraphBuilder
     {
-        public Graph Build(OsmPbfGraphBuilderInput input)
+        public OsmPbfGraphBuilder(Uri pbfFileURI, 
+            IAttributeFilterCollection linkFilters,
+            IAttributesFetcherCollection nodeAttrsFetchers,
+            IAttributesFetcherCollection linkAttrsFetechers)
         {
-            return InternalBuild(input);
+            DigitalMapURI = pbfFileURI;
+            LinkFilters = linkFilters;
+            NodeAttributesFetchers = nodeAttrsFetchers;
+            LinkAttributesFetchers = linkAttrsFetechers;
         }
 
-        public Task<Graph> BuildAsync(OsmPbfGraphBuilderInput input)
+        #region IGraphBuilderMembers
+        public Uri DigitalMapURI { get ; set; }
+
+        public IAttributeFilterCollection LinkFilters { get; set; }
+
+        public IAttributesFetcherCollection NodeAttributesFetchers { get; set; }
+
+        public IAttributesFetcherCollection LinkAttributesFetchers { get; set; }
+
+        public Graph Build()
         {
-            return new Task<Graph>(() => InternalBuild(input));
+            return InternalBuild();
         }
+
+        public Task<Graph> BuildAsync()
+        {
+            return new Task<Graph>(() => InternalBuild());
+        }
+        #endregion
 
         /// <summary>
         /// Builds the graph from <paramref name="input"/>
         /// </summary>
         /// <param name="input">Input for this GraphBuilder</param>
         /// <returns></returns>
-        private Graph InternalBuild(OsmPbfGraphBuilderInput input)
+        private Graph InternalBuild()
         {
-            if (!File.Exists(input.FilePath))
+            if (!File.Exists(DigitalMapURI.LocalPath))
                 throw new ArgumentException("Pbf file specified is invalid or doesn't exists.");
 
 
@@ -42,7 +64,7 @@ namespace NGAT.Business.Implementation.IO.Osm
             SortedDictionary<long, int> nodesLinkCounter = new SortedDictionary<long, int>(); //the osm nodes with a link counter > 0 will become a network vertex
             List<Way> whiteListedWays = new List<Way>(); //the osm ways that will become links between network's vertexes
 
-            using (var fileStream = File.OpenRead(input.FilePath))
+            using (var fileStream = File.OpenRead(DigitalMapURI.LocalPath))
             {
                 var streamSource = new PBFOsmStreamSource(fileStream);
 
@@ -50,7 +72,7 @@ namespace NGAT.Business.Implementation.IO.Osm
                 foreach (Way way in streamSource.Where(o => o.Type == OsmGeoType.Way))
                 {
                     var wayAttrs = way.Tags.ToDictionary(t => t.Key, t => t.Value);
-                    if (input.ArcFiltersCollection.ApplyAllFilters(wayAttrs))
+                    if (LinkFilters.ApplyAllFilters(wayAttrs))
                     {
                         whiteListedWays.Add(way);
                         //Whitelisting first Node
@@ -106,7 +128,7 @@ namespace NGAT.Business.Implementation.IO.Osm
                         };
 
                         //Fetching node attributes
-                        var fecthedAttributes = input.NodeAttributeFetchersCollection.FetchWhiteListed(attributes);
+                        var fecthedAttributes = NodeAttributesFetchers.FetchWhiteListed(attributes);
 
                         //Adding the node to the graph
                         network.AddNode(newNode, fecthedAttributes);
@@ -136,19 +158,30 @@ namespace NGAT.Business.Implementation.IO.Osm
 
                     #region Filtering ways by its attributes
                     //Way already passed all filters so we process it and fetch the attributes needed
-                    var fetchedArcAttributes = input.ArcAttributeFetchersCollection.FetchWhiteListed(attributes);
+                    var fetchedArcAttributes = LinkAttributesFetchers.FetchWhiteListed(attributes);
                     var arcData = new LinkData()
                     {
                         RawData = Newtonsoft.Json.JsonConvert.SerializeObject(fetchedArcAttributes)
                     };
                     network.AddLinkData(arcData);
                     //Determinig if this way is one-way and if it is, determining it direction
-                    bool oneWay = attributes.ContainsKey("oneway")
+                    bool oneWay = (attributes.ContainsKey("oneway")
                         && attributes["oneway"].ToLowerInvariant() != "no"
                         && attributes["oneway"].ToLowerInvariant() != "0"
-                        && attributes["oneway"].ToLowerInvariant() != "false";
+                        && attributes["oneway"].ToLowerInvariant() != "false")
+                        ||
+                        (attributes.ContainsKey("junction")
+                        && (attributes["junction"].ToLowerInvariant() == "circular" || attributes["junction"].ToLowerInvariant() == "roundabout"))
+                        ||
+                        (attributes.ContainsKey("highway") 
+                        && ((attributes["highway"].ToLowerInvariant() == "motorway")
+                            ||
+                            (attributes["highway"].ToLowerInvariant() == "motorway_link") 
+                            ||
+                            (attributes["highway"].ToLowerInvariant() == "mini_roundabout")
+                        ));
 
-                    bool forwardDirection = oneWay && (attributes["oneway"].ToLowerInvariant() == "yes"
+                    bool forwardDirection = attributes.ContainsKey("oneway") && (attributes["oneway"].ToLowerInvariant() == "yes"
                         || attributes["oneway"].ToLowerInvariant() == "1"
                         || attributes["oneway"].ToLowerInvariant() == "true");
 
@@ -169,9 +202,6 @@ namespace NGAT.Business.Implementation.IO.Osm
             return network;
         }
 
-  
-       
-        
         /// <summary>
         /// Process a way according to its direction
         /// </summary>
