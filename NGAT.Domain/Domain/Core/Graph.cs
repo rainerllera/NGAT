@@ -2,6 +2,7 @@
 using NGAT.Business.Domain.Base;
 using Newtonsoft.Json;
 using System;
+using System.Linq;
 
 namespace NGAT.Business.Domain.Core
 {
@@ -12,31 +13,18 @@ namespace NGAT.Business.Domain.Core
     {
         public Graph()
         {
-            //this.ArcDataIndex = new SortedDictionary<int, ArcData>();
-            this.ArcDatas = new List<ArcData>();
-            //this.VertexToNodesIndex = new SortedDictionary<long, int>();
+            this.ArcDatas = new List<LinkData>();
             this.NodesIndex = new SortedDictionary<int, Node>();
-            //this.ArcsIndex = new SortedDictionary<int, Arc>();
             this.Nodes = new List<Node>();
             this.Arcs = new List<Arc>();
+            this.Edges = new List<Edge>();
         }
 
         #region Properties
-        //public virtual IDictionary<int, ArcData> ArcDataIndex { get; set; }
-        /// <summary>
-        /// A mapping to represent the conversion from original points from a map, to graph nodes
-        /// </summary>
-       // public virtual IDictionary<long, int> VertexToNodesIndex { get; set; }
-
         /// <summary>
         /// The Nodes of this Graph (in Dictionary format, for indexing)
         /// </summary>
         public virtual IDictionary<int, Node> NodesIndex { get; set; }
-
-        /// <summary>
-        /// The Arcs of this Graph (in Dictionary format, for indexing)
-        /// </summary>
-        //public virtual IDictionary<int, Arc> ArcsIndex { get; set; }
 
         /// <summary>
         /// The nodes of this graph
@@ -51,7 +39,12 @@ namespace NGAT.Business.Domain.Core
         /// <summary>
         /// The Arcs profiles for this graph
         /// </summary>
-        public virtual IList<ArcData> ArcDatas { get; set; }
+        public virtual IList<LinkData> ArcDatas { get; set; }
+
+        /// <summary>
+        /// The Edges of this Graph
+        /// </summary>
+        public virtual IList<Edge> Edges { get; set; }
         #endregion
 
         #region Methods
@@ -62,7 +55,7 @@ namespace NGAT.Business.Domain.Core
         /// <param name="node">The node to add</param>
         /// <param name="originalId">The original Id of the node object in its original data source</param>
         /// <param name="fetchedAttributes">The attributes to stores for this node</param>
-        public void AddNode(Node node, long originalId, IDictionary<string, string> fetchedAttributes)
+        public void AddNode(Node node, IDictionary<string, string> fetchedAttributes)
         {
 
                 //Using the well-formed hash code of the coordinate as Id for the node
@@ -89,29 +82,29 @@ namespace NGAT.Business.Domain.Core
         /// <param name="longitude">The longitude of the node</param>
         /// <param name="originalId">The original Id of the node object in its original data source</param>
         /// <param name="fetchedAttributes">The attributes to stores for this node</param>
-        public void AddNode(double latitude, double longitude, long originalId, IDictionary<string,string> fetchedAttributes)
+        public void AddNode(double latitude, double longitude, IDictionary<string,string> fetchedAttributes)
         {
             this.AddNode(new Node
             {
                 Latitude = latitude,
                 Longitude = longitude
-            }, originalId, fetchedAttributes);
+            }, fetchedAttributes);
         }
         #endregion
 
-        #region Arcs
+        #region Links
         /// <summary>
         /// Adds an arc to the graph and calculates distance between nodes coordinates
         /// </summary>
         /// <param name="fromOriginalNodeId">The Id of the origin point from data source</param>
         /// <param name="toOriginalNodeId">The Id of the destination point from data source</param>
         /// <param name="fetchedArcAttributes">The attributes to store for this arc</param>
-        public void AddArc(int fromNodeId, int toNodeId, ArcData arcData)
+        public void AddLink(int fromNodeId, int toNodeId, LinkData linkData, bool directed)
         {
             var fromNode = NodesIndex[fromNodeId];
             var toNode = NodesIndex[toNodeId];
             var distance = fromNode.Coordinate.GetDistanceTo(toNode.Coordinate);
-            AddArc(fromNode, toNode, distance, arcData);
+            AddLink(fromNode, toNode, distance, linkData, directed);
         }
 
         /// <summary>
@@ -121,11 +114,11 @@ namespace NGAT.Business.Domain.Core
         /// <param name="toOriginalNodeId">The Id of the destination point from data source</param>
         /// <param name="distance">Provided distance</param>
         /// <param name="fetchedArcAttributes">The attributes to store for this arc</param>
-        public void AddArc(int fromNodeId, int toNodeId, double distance, ArcData arcData)
+        public void AddLink(int fromNodeId, int toNodeId, double distance, LinkData linkData, bool directed, IEnumerable<Tuple<double, double>> coordinates = null)
         {
             var fromNode = NodesIndex[fromNodeId];
             var toNode = NodesIndex[toNodeId];
-            AddArc(fromNode, toNode, distance, arcData);
+            AddLink(fromNode, toNode, distance, linkData, directed,coordinates);
         }
 
         /// <summary>
@@ -134,24 +127,9 @@ namespace NGAT.Business.Domain.Core
         /// <param name="fromNode">The origin node</param>
         /// <param name="toNode">The destination node</param>
         /// <param name="fetchedArcAttributes">The attributes to store for this arc</param>
-        private void AddArc(Node fromNode, Node toNode, ArcData arcData)
+        private void AddLink(Node fromNode, Node toNode, LinkData linkData, bool directed)
         {
-            var newArc = new Arc()
-            {
-                ArcData = arcData,
-                FromNode = fromNode,
-                ToNode = toNode,
-                FromNodeId = fromNode.Id,
-                ToNodeId = toNode.Id,
-                Graph = this,
-                GraphId = this.Id,
-                Distance = fromNode.Coordinate.GetDistanceTo(toNode.Coordinate),
-                Id = this.Arcs.Count + 1
-            };
-            fromNode.OutgoingArcs.Add(newArc);
-            toNode.IncomingArcs.Add(newArc);
-            Arcs.Add(newArc);
-            //ArcsIndex.Add(newArc.Id, newArc);
+            AddLink(fromNode, toNode, fromNode.Coordinate.GetDistanceTo(toNode.Coordinate), linkData, directed);
         }
 
         /// <summary>
@@ -161,35 +139,93 @@ namespace NGAT.Business.Domain.Core
         /// <param name="toNode">The destination node</param>
         /// <param name="distance">Provided distance</param>
         /// <param name="fetchedArcAttributes">The attributes to store for this arc</param>
-        private void AddArc(Node fromNode, Node toNode, double distance, ArcData arcData)
+        private void AddLink(Node fromNode, Node toNode, double distance, LinkData linkData, bool directed, IEnumerable<Tuple<double,double>> coordinates = null)
         {
-            var newArc = new Arc()
+            if (directed)
             {
-                ArcData = arcData,
-                FromNode = fromNode,
-                ToNode = toNode,
-                FromNodeId = fromNode.Id,
-                ToNodeId = toNode.Id,
-                Graph = this,
-                GraphId = this.Id,
-                Distance = distance,
-                Id = this.Arcs.Count + 1
-            };
-            fromNode.OutgoingArcs.Add(newArc);
-            toNode.IncomingArcs.Add(newArc);
-            Arcs.Add(newArc);
-            //ArcsIndex.Add(newArc.Id, newArc);
+                var newArc = new Arc()
+                {
+                    LinkData = linkData,
+                    FromNode = fromNode,
+                    ToNode = toNode,
+                    FromNodeId = fromNode.Id,
+                    ToNodeId = toNode.Id,
+                    Graph = this,
+                    GraphId = this.Id,
+                    Distance = distance,
+                    Id = this.Arcs.Count + 1,
+                    
+                };
+                if(coordinates!=null)
+                {
+                    newArc.PointsData = string.Join(",", coordinates.Select(c => $"{c.Item1} {c.Item2}"));
+                }
+                fromNode.OutgoingArcs.Add(newArc);
+                toNode.IncomingArcs.Add(newArc);
+                Arcs.Add(newArc);
+            }
+            else
+            {
+                var newEdge = new Edge()
+                {
+                    LinkData = linkData,
+                    FromNode = fromNode,
+                    ToNode = toNode,
+                    FromNodeId = fromNode.Id,
+                    ToNodeId = toNode.Id,
+                    Graph = this,
+                    GraphId = this.Id,
+                    Distance = distance,
+                    Id = this.Edges.Count + 1
+                };
+                if (coordinates != null)
+                {
+                    newEdge.PointsData = string.Join(",", coordinates.Select(c => $"{c.Item1} {c.Item2}"));
+                }
+                fromNode.Edges.Add(newEdge);
+                toNode.Edges.Add(newEdge);
+                Edges.Add(newEdge);
+            }
+        }
+
+        /// <summary>
+        /// Deletes a node from the graph
+        /// </summary>
+        /// <param name="nodeToDelete">The node to delete</param>
+        public void DeleteNode(Node nodeToDelete)
+        {
+            foreach (var edge in nodeToDelete.Edges)
+            {
+                if (edge.FromNode == nodeToDelete)
+                    edge.ToNode.Edges.Remove(edge);
+                else
+                    edge.FromNode.Edges.Remove(edge);
+
+                this.Edges.Remove(edge);
+            }
+            foreach (var arc in nodeToDelete.IncomingArcs)
+            {
+                arc.FromNode.OutgoingArcs.Remove(arc);
+                Arcs.Remove(arc);
+            }
+            foreach (var arc in nodeToDelete.OutgoingArcs)
+            {
+                arc.ToNode.IncomingArcs.Remove(arc);
+                Arcs.Remove(arc);
+            }
+            this.Nodes.Remove(nodeToDelete);
+            this.NodesIndex.Remove(nodeToDelete.Id);
         }
 
         /// <summary>
         /// Adds an arcData object to the ArcDataIndex
         /// </summary>
-        /// <param name="arcData">The object to index</param>
-        public void AddArcData(ArcData arcData)
+        /// <param name="linkData">The object to index</param>
+        public void AddLinkData(LinkData linkData)
         {
-            arcData.Id = ArcDatas.Count + 1;
+            linkData.Id = ArcDatas.Count + 1;
             //ArcDataIndex.Add(arcData.Id, arcData);
-            ArcDatas.Add(arcData);
+            ArcDatas.Add(linkData);
         }
         #endregion
         #endregion

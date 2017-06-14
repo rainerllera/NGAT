@@ -30,7 +30,7 @@ namespace NGAT.Business.Tests.Graphs
                 { "name", "NodeName" },
                 { "age", "64" }
             };
-            graph.AddNode(newNode, originalId, fetchedAttributes);
+            graph.AddNode(newNode, fetchedAttributes);
 
             //Assert.True(graph.VertexToNodesIndex.ContainsKey(originalId));
             //Assert.True(graph.VertexToNodesIndex[originalId] == id);
@@ -68,30 +68,23 @@ namespace NGAT.Business.Tests.Graphs
                     { "name", "NodeName" + i.ToString() },
                     { "age", i.ToString() }
                 };
-                graph.AddNode(newNode, originalId, fetchedAttributes);
+                graph.AddNode(newNode, fetchedAttributes);
             }
 
             Assert.True(graph.Nodes.Count == 10);
             //Assert.True(graph.VertexToNodesIndex.Count == 10);
             Dictionary<string, string> fetchedattrs = new Dictionary<string, string>();
-            var arcData = new ArcData()
+            var arcData = new LinkData()
             {
                 RawData = Newtonsoft.Json.JsonConvert.SerializeObject(fetchedattrs)
             };
-            graph.AddArcData(arcData);
+            graph.AddLinkData(arcData);
 
-            graph.AddArc(1, 3, arcData);
-            graph.AddArc(1, 4, arcData);
-            graph.AddArc(4, 3, arcData);
-            graph.AddArc(4, 1, arcData);
-            graph.AddArc(3, 6, arcData);
-
-            //Verifying arcs were added correctly
-            //Assert.True(graph.ArcsIndex[1].FromNodeId == graph.VertexToNodesIndex[1] && graph.ArcsIndex[1].ToNodeId == graph.VertexToNodesIndex[3]);
-            //Assert.True(graph.ArcsIndex[2].FromNodeId == graph.VertexToNodesIndex[1] && graph.ArcsIndex[2].ToNodeId == graph.VertexToNodesIndex[4]);
-            //Assert.True(graph.ArcsIndex[3].FromNodeId == graph.VertexToNodesIndex[4] && graph.ArcsIndex[3].ToNodeId == graph.VertexToNodesIndex[3]);
-            //Assert.True(graph.ArcsIndex[4].FromNodeId == graph.VertexToNodesIndex[4] && graph.ArcsIndex[4].ToNodeId == graph.VertexToNodesIndex[1]);
-            //Assert.True(graph.ArcsIndex[5].FromNodeId == graph.VertexToNodesIndex[3] && graph.ArcsIndex[5].ToNodeId == graph.VertexToNodesIndex[6]);
+            graph.AddLink(1, 3, arcData, true);
+            graph.AddLink(1, 4, arcData, true);
+            graph.AddLink(4, 3, arcData, true);
+            graph.AddLink(4, 1, arcData, true);
+            graph.AddLink(3, 6, arcData, true);
 
             //Verifying relations were added correctly
             Assert.True(graph.NodesIndex[1].OutgoingArcs.Count == 2);
@@ -101,7 +94,7 @@ namespace NGAT.Business.Tests.Graphs
             Assert.True(graph.NodesIndex[1].IncomingArcs[0].FromNodeId == 4);
 
             //testing distances
-            graph.AddArc(1, 6, 5000, arcData);
+            graph.AddLink(1, 6, 5000, arcData, true);
 
             Assert.True(graph.Arcs[6 - 1].Distance == 5000);
             Assert.True(graph.Arcs[2 - 1].Distance == graph.Arcs[4 - 1].Distance);

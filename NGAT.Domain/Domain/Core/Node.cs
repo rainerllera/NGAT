@@ -13,9 +13,9 @@ namespace NGAT.Business.Domain.Core
         {
             this.IncomingArcs = new List<Arc>();
             this.OutgoingArcs = new List<Arc>();
+            this.Edges = new List<Edge>();
         }
 
-        private GeoCoordinate _coordinate;
         /// <summary>
         /// The coordinate for this node
         /// </summary>
@@ -41,7 +41,6 @@ namespace NGAT.Business.Domain.Core
         /// </summary>
         public string NodeData { get; set; }
 
-        IDictionary<string, string> _nodeAttributes;
         /// <summary>
         /// The Deserialized node Data
         /// </summary>
@@ -60,5 +59,26 @@ namespace NGAT.Business.Domain.Core
         /// The incoming arcs related to this node
         /// </summary>
         public virtual IList<Arc> IncomingArcs { get; set; }
+
+        /// <summary>
+        /// The edges related to this node
+        /// </summary>
+        public virtual IList<Edge> Edges { get; set; }
+
+        /// <summary>
+        /// In-degree
+        /// </summary>
+        public int InDegree => IncomingArcs.Count;
+
+        /// <summary>
+        /// Out-degree
+        /// </summary>
+        public int OutDegree => OutgoingArcs.Count;
+
+        /// <summary>
+        /// Degree
+        /// </summary>
+        public int Degree => Edges.Count;
+
     }
 }

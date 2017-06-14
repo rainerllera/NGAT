@@ -35,7 +35,7 @@ namespace NGAT.Business.Tests.GraphBuilders.Osm
             mockArcFilterCollection.Setup(i => i.ApplyAllFilters(It.IsAny<IDictionary<string, string>>()))
                 .Returns<IDictionary<string,string>>((i)=> {
                     
-                    return i.ContainsKey("highway");
+                    return i.ContainsKey("highway") && (i["highway"].ToLowerInvariant()!="pedestrian" && i["highway"].ToLowerInvariant() != "footway");
                 });
             ArcFilterCollection = mockArcFilterCollection.Object;
 
@@ -43,16 +43,17 @@ namespace NGAT.Business.Tests.GraphBuilders.Osm
             mockArcFetchersColletciont.Setup(i => i.FetchWhiteListed(It.IsAny<IDictionary<string, string>>()))
                 .Returns<IDictionary<string, string>>(i =>
                 {
-                    var result = new Dictionary<string, string>();
-                    foreach (var KV in i)
-                    {
-                        if (KV.Key.ToLowerInvariant().StartsWith("highway"))
-                            result.Add(KV.Key, KV.Value);
-                        else if (KV.Key.ToLowerInvariant().Contains("way"))
-                            result.Add(KV.Key, KV.Value);
-                    }
+                    return i;
+                    //var result = new Dictionary<string, string>();
+                    //foreach (var KV in i)
+                    //{
+                    //    //if (KV.Key.ToLowerInvariant().StartsWith("highway"))
+                    //        result.Add(KV.Key, KV.Value);
+                    //    //else if (KV.Key.ToLowerInvariant().Contains("way"))
+                    //    //    result.Add(KV.Key, KV.Value);
+                    //}
 
-                    return result;
+                    //return result;
                 });
             ArcFetchersCollection = mockArcFetchersColletciont.Object;
 
@@ -70,7 +71,7 @@ namespace NGAT.Business.Tests.GraphBuilders.Osm
         public void DefaultOsmPbfGraphBuilder_Build_Tests()
         {
             var defautlInput = new OsmPbfGraphBuilderInput(Path.Combine(AppContext.BaseDirectory, "cuba-latest.osm.pbf"), NodeFilterCollection, NodeFetchersCollection, ArcFilterCollection, ArcFetchersCollection);
-            //var defautlInput = new DefaultOsmPbfGraphBuilderInput(Path.Combine(AppContext.BaseDirectory, "api.osm.pbf"), NodeFilterCollection, NodeFetchersCollection, ArcFilterCollection, ArcFetchersCollection);
+            //var defautlInput = new OsmPbfGraphBuilderInput(Path.Combine(AppContext.BaseDirectory, "api.osm.pbf"), NodeFilterCollection, NodeFetchersCollection, ArcFilterCollection, ArcFetchersCollection);
             var builder = new OsmPbfGraphBuilder();
 
             var graph = builder.Build(defautlInput);
@@ -86,17 +87,30 @@ namespace NGAT.Business.Tests.GraphBuilders.Osm
                 Assert.True(graph.NodesIndex.ContainsKey(fromId) && graph.NodesIndex.ContainsKey(toId));
                 Assert.True(graph.NodesIndex[fromId].OutgoingArcs.Any(a => a.FromNodeId == fromId && a.ToNodeId == toId));
                 Assert.True(graph.NodesIndex[toId].IncomingArcs.Any(a => a.FromNodeId == fromId && a.ToNodeId == toId));
-                Assert.True(graph.Arcs[arc.Id - 1].Equals(arc));
+               // Assert.True(graph.Arcs[arc.Id - 1].Equals(arc));
             }
 
-            //Checking all nodes belong to at least an arc
-            Assert.True(graph.Nodes.All(n => n.IncomingArcs.Count > 0 || n.OutgoingArcs.Count > 0));
+            foreach (var edge in graph.Edges)
+            {
+                var fromId = edge.FromNodeId;
+                var toId = edge.ToNodeId;
 
-            
+                Assert.True(graph.NodesIndex.ContainsKey(fromId) && graph.NodesIndex.ContainsKey(toId));
+                Assert.True(graph.NodesIndex[fromId].Edges.Any(a => a.FromNodeId == fromId && a.ToNodeId == toId));
+                Assert.True(graph.NodesIndex[toId].Edges.Any(a => a.FromNodeId == fromId && a.ToNodeId == toId));
+               // Assert.True(graph.Edges[edge.Id - 1].Equals(edge));
+            }
+            //Checking all nodes belong to at least an arc
+            Assert.True(graph.Nodes.All(n => n.IncomingArcs.Count > 0 || n.OutgoingArcs.Count > 0 || n.Edges.Count > 0));
+
+            //Checking for loops THIS IS FAILING WITH THE SIMPLIFICATION
+            //Assert.False(graph.Edges.Any(e => e.FromNodeId == e.ToNodeId));
+            //Assert.False(graph.Arcs.Any(a => a.FromNodeId == a.ToNodeId));
 
             var nodes = graph.Nodes.Where(a => a.Longitude <= -82.35806465148926 && a.Latitude <= 23.145805714137563 && a.Longitude >= -82.37866401672363 && a.Latitude >= 23.122363841245967);
             Assert.True(nodes.Count() != 0);
-            using (var file = File.OpenWrite("featurescuba.geojson"))
+            var markedEdges = new Dictionary<int,bool>();
+            using (var file = File.OpenWrite("features-cuba-with-geometries.geojson"))
             {
                 using (var tw = new StreamWriter(file))
                 {
@@ -110,18 +124,68 @@ namespace NGAT.Business.Tests.GraphBuilders.Osm
                         var arcs = node.OutgoingArcs;//.Arcs.Where(a => a.FromNodeId == node.Id);//.Where(a => a.FromNode.Latitude <= -82.35806465148926 && a.FromNode.Longitude <= 23.145805714137563 && a.ToNode.Latitude >= -82.37866401672363 && a.ToNode.Longitude >= 23.122363841245967);
                         foreach (var arc in arcs)
                         {
-                            tw.Write("{ \"type\":\"Feature\",\"properties\":{ },\"geometry\":{ \"type\":\"LineString\",\"coordinates\":[[" + arc.FromNode.Longitude + "," + arc.FromNode.Latitude + "],[" + arc.ToNode.Longitude + "," + arc.ToNode.Latitude + "]]}},");
+                            var attributesToProps = string.Concat(arc.LinkData.Attributes.Select(kv => $"\"{kv.Key}\": \"{kv.Value}\","));
+                            attributesToProps = attributesToProps.Substring(0, attributesToProps.Length - 1);
+                            List<string> coordinatesString = new List<string>();
+                            if (arc.PointsData != null)
+                            {
+                                var points = arc.PointsData.Split(',');
+                                for (int i = 0; i < points.Length; i++)
+                                {
+                                    var pointString = points[i];
+                                    var splittedPoint = pointString.Split(' ');
+                                    var lat = splittedPoint[0];
+                                    var lon = splittedPoint[1];
+                                    coordinatesString.Add($"[{lon}, {lat}]");
+                                }
+                            }
+                            else
+                            {
+                                coordinatesString.Add($"[{arc.FromNode.Longitude}, {arc.FromNode.Latitude}]");
+                                coordinatesString.Add($"[{arc.ToNode.Longitude}, {arc.ToNode.Latitude}]");
+                            }
+                            tw.Write("{ \"type\":\"Feature\",\"properties\":{ \"stroke\": \"#ff0000\", \"stroke-width\": 3, \"stroke-opacity\": 1, \"obj-type\": \"arc\", " + attributesToProps + "},\"geometry\":{ \"type\":\"LineString\",\"coordinates\":[" + string.Join(",", coordinatesString) + "]}},");
+                        }
+
+                        foreach (var edge in node.Edges)
+                        {
+                            if (!markedEdges.ContainsKey(edge.Id-1))
+                            {
+                                var attributesToProps = string.Concat(edge.LinkData.Attributes.Select(kv => $"\"{kv.Key}\": \"{kv.Value}\","));
+                                attributesToProps = attributesToProps.Substring(0, attributesToProps.Length - 1);
+                                List<string> coordinatesString = new List<string>();
+                                if (edge.PointsData != null)
+                                {
+                                    var points = edge.PointsData.Split(',');
+                                    for (int i = 0; i < points.Length; i++)
+                                    {
+                                        var pointString = points[i];
+                                        var splittedPoint = pointString.Split(' ');
+                                        var lat = splittedPoint[0];
+                                        var lon = splittedPoint[1];
+                                        coordinatesString.Add($"[{lon}, {lat}]");
+                                    }
+                                }
+                                else
+                                {
+                                    coordinatesString.Add($"[{edge.FromNode.Longitude}, {edge.FromNode.Latitude}]");
+                                    coordinatesString.Add($"[{edge.ToNode.Longitude}, {edge.ToNode.Latitude}]");
+                                }
+                                tw.Write("{ \"type\":\"Feature\",\"properties\":{ \"stroke\": \"#00ff00\", \"stroke-width\": 5, \"stroke-opacity\": 1, \"obj-type\": \"edge\", " + attributesToProps + "},\"geometry\":{ \"type\":\"LineString\",\"coordinates\":[" + string.Join(",", coordinatesString) + "]}},");
+                                markedEdges[edge.Id - 1] = true;
+                            }
                         }
                         tw.Write("{ \"type\":\"Feature\",\"properties\":{ },\"geometry\":{ \"type\":\"Point\",\"coordinates\":[" + node.Longitude + "," + node.Latitude + "]}}");
                         flag = false;
+                        
                     }
-
+                    
                     tw.Write("]");
 
                     tw.Write("}");
 
 
-                    
+
                 }
             }
         }
