@@ -234,17 +234,48 @@ namespace NGAT.Services.IO.Osm
                     double accumulatedDistance = 0;
                     var fromNode = result.NodesIndex[nodeToVertexMapping[fromNodeId]];
 
-                    List<Tuple<double, double>> intermediatePoints = new List<Tuple<double, double>>() { new Tuple<double, double>(fromNode.Latitude, fromNode.Longitude) };
+                    //First node
+                    List<Tuple<double, double, long>> intermediatePoints = new List<Tuple<double, double, long>>() { new Tuple<double, double,long>(fromNode.Latitude, fromNode.Longitude,0) };
 
                     while (notAddedNodes.TryGetValue(toNodeId, out OsmSharp.Node toNode))
                     {
                         accumulatedDistance += fromNode.Coordinate.GetDistanceTo(new GeoCoordinatePortable.GeoCoordinate(toNode.Latitude.Value, toNode.Longitude.Value));
-                        intermediatePoints.Add(new Tuple<double, double>(toNode.Latitude.Value, toNode.Longitude.Value));
+                        intermediatePoints.Add(new Tuple<double, double, long>(toNode.Latitude.Value, toNode.Longitude.Value, toNode.Id.Value));
                         i += iteratorModifier;
                         toNodeId = osmWay.Nodes[i];
                     }
-                    intermediatePoints.Add(new Tuple<double, double>(result.NodesIndex[nodeToVertexMapping[toNodeId]].Latitude, result.NodesIndex[nodeToVertexMapping[toNodeId]].Longitude));
-                    result.AddLink(nodeToVertexMapping[fromNodeId], nodeToVertexMapping[toNodeId], accumulatedDistance, arcData, oneway, intermediatePoints);
+
+                    //Last node
+                    intermediatePoints.Add(new Tuple<double, double,long>(result.NodesIndex[nodeToVertexMapping[toNodeId]].Latitude, result.NodesIndex[nodeToVertexMapping[toNodeId]].Longitude, 0));
+
+                    if(intermediatePoints[0].Equals(intermediatePoints[intermediatePoints.Count-1])&&intermediatePoints.Count>2)
+                    {
+                        //Last Node equals first, so we split the edge for avoiding loops, we use the first not added node of the way
+                        var toAddNode = notAddedNodes[intermediatePoints[1].Item3];
+                        notAddedNodes.Remove(intermediatePoints[1].Item3);
+
+                        //Fetching new node attributes
+                        var attributes = NodeAttributesFetchers.Fetch(toAddNode.Tags.ToDictionary(t => t.Key, t => t.Value));
+
+                        var newNode = new NGAT.Business.Domain.Core.Node()
+                        {
+                            Latitude = toAddNode.Latitude.Value,
+                            Longitude = toAddNode.Longitude.Value
+                        };
+                        result.AddNode(newNode, attributes);
+                        nodeToVertexMapping[toAddNode.Id.Value] = newNode.Id;
+
+                        toNodeId = toAddNode.Id.Value;
+                        //Adding link between first node and second and continue processing
+                        result.AddLink(nodeToVertexMapping[fromNodeId], newNode.Id, arcData, oneway);
+
+                    }
+                    else if(!intermediatePoints[0].Equals(intermediatePoints[intermediatePoints.Count-1]))
+                    {
+                        //There was no problem, we add the full link
+                        result.AddLink(nodeToVertexMapping[fromNodeId], nodeToVertexMapping[toNodeId], accumulatedDistance, arcData, oneway, intermediatePoints.Select(t => new Tuple<double, double>(t.Item1, t.Item2)));
+                    }
+                    //Other cases indicate broken ways
                 }
                 fromNodeId = toNodeId;
             }

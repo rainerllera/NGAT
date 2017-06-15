@@ -49,15 +49,15 @@ namespace NGAT.Business.Tests.GraphBuilders.Osm
             //Checking all nodes belong to at least an arc
             Assert.True(graph.Nodes.All(n => n.IncomingArcs.Count > 0 || n.OutgoingArcs.Count > 0 || n.Edges.Count > 0));
 
-            //Checking for loops THIS IS FAILING WITH THE SIMPLIFICATION
-            //Assert.False(graph.Edges.Any(e => e.FromNodeId == e.ToNodeId));
-            //Assert.False(graph.Arcs.Any(a => a.FromNodeId == a.ToNodeId));
+            //Checking for loops
+            Assert.False(graph.Edges.Any(e => e.FromNodeId == e.ToNodeId));
+            Assert.False(graph.Arcs.Any(a => a.FromNodeId == a.ToNodeId));
 
             Assert.True(graph.Edges.Where(e => e.LinkData.Attributes.ContainsKey("junction") && e.LinkData.Attributes["junction"] == "roundabout").Count() == 0);
             Assert.True(graph.Arcs.Where(e => e.LinkData.Attributes.ContainsKey("junction") && e.LinkData.Attributes["junction"] == "roundabout").Count() != 0);
 
             
-            using (var file = File.OpenWrite("Cuba-Network-Partial.geojson"))
+            using (var file = File.OpenWrite("Cuba-Network-Without-Loops.geojson"))
             {
                 var geoJsonExporter = new GeoJSONGraphExporter(file);
                 geoJsonExporter.ExportInRange(23.1277, -82.3961, 23.145805714137563, -82.35806465148926, graph);

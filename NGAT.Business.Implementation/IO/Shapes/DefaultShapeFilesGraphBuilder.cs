@@ -14,6 +14,7 @@ namespace NGAT.Business.Implementation.IO.Shapes
         public IAttributesFetcherCollection NodeAttributesFetchers { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public IAttributesFetcherCollection LinkAttributesFetchers { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
+        public string DigitalMapFormatID => throw new NotImplementedException();
 
         public Graph Build()
         {
