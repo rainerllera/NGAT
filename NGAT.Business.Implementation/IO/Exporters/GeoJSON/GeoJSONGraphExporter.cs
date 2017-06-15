@@ -11,14 +11,17 @@ namespace NGAT.Services.IO.Exporters.GeoJSON
     {
         public override string FormatID => "GeoJSON";
 
-        public GeoJSONGraphExporter(Stream stream) : base(stream)
+        public GeoJSONGraphExporter(Stream stream, bool exportPoints = true) : base(stream)
         {
+            ExportPoints = exportPoints;
         }
 
         public override void Export(Graph graph)
         {
             InternalExport(graph.NodesIndex);
         }
+
+        public bool ExportPoints { get; set; }
 
         private void InternalExport(IDictionary<int, Node> nodesIndex)
         {
@@ -28,11 +31,10 @@ namespace NGAT.Services.IO.Exporters.GeoJSON
             {
                 tw.Write("{\"type\":\"FeatureCollection\",\"features\":");
                 tw.Write("[");
-                bool flag = true;
+                List<string> featuresStrings = new List<string>();
                 foreach (var node in nodes)
                 {
-                    if (!flag)
-                        tw.Write(",");
+                    
                     var arcs = node.OutgoingArcs;//.Arcs.Where(a => a.FromNodeId == node.Id);//.Where(a => a.FromNode.Latitude <= -82.35806465148926 && a.FromNode.Longitude <= 23.145805714137563 && a.ToNode.Latitude >= -82.37866401672363 && a.ToNode.Longitude >= 23.122363841245967);
                     foreach (var arc in arcs.Where(a=>nodesIndex.ContainsKey(a.ToNodeId)))
                     {
@@ -56,9 +58,8 @@ namespace NGAT.Services.IO.Exporters.GeoJSON
                             coordinatesString.Add($"[{arc.FromNode.Longitude}, {arc.FromNode.Latitude}]");
                             coordinatesString.Add($"[{arc.ToNode.Longitude}, {arc.ToNode.Latitude}]");
                         }
-                        tw.Write("{ \"type\":\"Feature\",\"properties\":{ \"stroke\": \"#ff0000\", \"stroke-width\": 3, \"stroke-opacity\": 1, \"obj-type\": \"arc\", " + attributesToProps + "},\"geometry\":{ \"type\":\"LineString\",\"coordinates\":[" + string.Join(",", coordinatesString) + "]}},");
+                        featuresStrings.Add("{ \"type\":\"Feature\",\"properties\":{ \"stroke\": \"#ff0000\", \"stroke-width\": 3, \"stroke-opacity\": 1, \"obj-type\": \"arc\", " + attributesToProps + "},\"geometry\":{ \"type\":\"LineString\",\"coordinates\":[" + string.Join(",", coordinatesString) + "]}}");
                     }
-
                     foreach (var edge in node.Edges.Where(e=>nodesIndex.ContainsKey(e.FromNodeId)&&nodesIndex.ContainsKey(e.ToNodeId)))
                     {
                         if (!markedEdges.ContainsKey(edge.Id - 1))
@@ -83,15 +84,16 @@ namespace NGAT.Services.IO.Exporters.GeoJSON
                                 coordinatesString.Add($"[{edge.FromNode.Longitude}, {edge.FromNode.Latitude}]");
                                 coordinatesString.Add($"[{edge.ToNode.Longitude}, {edge.ToNode.Latitude}]");
                             }
-                            tw.Write("{ \"type\":\"Feature\",\"properties\":{ \"stroke\": \"#00ff00\", \"stroke-width\": 5, \"stroke-opacity\": 1, \"obj-type\": \"edge\", " + attributesToProps + "},\"geometry\":{ \"type\":\"LineString\",\"coordinates\":[" + string.Join(",", coordinatesString) + "]}},");
+                            featuresStrings.Add("{ \"type\":\"Feature\",\"properties\":{ \"stroke\": \"#00ff00\", \"stroke-width\": 5, \"stroke-opacity\": 1, \"obj-type\": \"edge\", " + attributesToProps + "},\"geometry\":{ \"type\":\"LineString\",\"coordinates\":[" + string.Join(",", coordinatesString) + "]}}");
                             markedEdges[edge.Id - 1] = true;
                         }
                     }
-                    tw.Write("{ \"type\":\"Feature\",\"properties\":{ },\"geometry\":{ \"type\":\"Point\",\"coordinates\":[" + node.Longitude + "," + node.Latitude + "]}}");
-                    flag = false;
+                    if(ExportPoints)
+                        featuresStrings.Add("{ \"type\":\"Feature\",\"properties\":{ },\"geometry\":{ \"type\":\"Point\",\"coordinates\":[" + node.Longitude + "," + node.Latitude + "]}}");
+                    
 
                 }
-
+                tw.Write(string.Join(",", featuresStrings));
                 tw.Write("]");
 
                 tw.Write("}");

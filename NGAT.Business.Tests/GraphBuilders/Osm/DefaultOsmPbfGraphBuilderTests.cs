@@ -57,9 +57,9 @@ namespace NGAT.Business.Tests.GraphBuilders.Osm
             Assert.True(graph.Arcs.Where(e => e.LinkData.Attributes.ContainsKey("junction") && e.LinkData.Attributes["junction"] == "roundabout").Count() != 0);
 
             
-            using (var file = File.OpenWrite("Cuba-Network-Without-Loops.geojson"))
+            using (var file = File.OpenWrite("Cuba-Network-Full-Optimized.geojson"))
             {
-                var geoJsonExporter = new GeoJSONGraphExporter(file);
+                var geoJsonExporter = new GeoJSONGraphExporter(file, false);
                 geoJsonExporter.ExportInRange(23.1277, -82.3961, 23.145805714137563, -82.35806465148926, graph);
             }
         }
