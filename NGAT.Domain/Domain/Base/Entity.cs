@@ -3,47 +3,23 @@
 namespace NGAT.Business.Domain.Base
 {
     /// <summary>
-    /// A Generic Entity, with id type <see cref="TKey"/>
+    /// An Entity
     /// </summary>
-    /// <typeparam name="TKey">The type of the id</typeparam>
-    public class Entity<TKey> where TKey:struct
+    public class Entity
     {
         /// <summary>
         /// Id of the Entity
         /// </summary>
-        public TKey Id { get; set; }
-    }
-
-    /// <summary>
-    /// Default Entity, with int as type for the Id
-    /// </summary>
-    public class Entity : Entity<int>
-    {
-
-    }
-
-    /// <summary>
-    /// An Entity that depends on an existing graph, i.e: a node
-    /// </summary>
-    /// <typeparam name="TKey"></typeparam>
-    public class GraphDependantEntity<TKey> : Entity<TKey> where TKey : struct
-    {
-        /// <summary>
-        /// The id of the graph this entity belongs to
-        /// </summary>
-        public int GraphId { get; set; }
-
-        /// <summary>
-        /// The graph this entity belongs to
-        /// </summary>
-        public Graph Graph { get; set; }
+        public int Id { get; set; }
     }
 
     /// <summary>
     /// Default GraphDependantEntity
     /// </summary>
-    public class GraphDependantEntity : GraphDependantEntity<int>
+    public class GraphDependantEntity : Entity
     {
+        public int GraphId { get; set; }
 
+        public Graph Graph;
     }
 }

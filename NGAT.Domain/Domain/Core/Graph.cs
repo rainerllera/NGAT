@@ -9,7 +9,7 @@ namespace NGAT.Business.Domain.Core
     /// <summary>
     /// Represents a Network Graph
     /// </summary>
-    public class Graph : Entity<int>
+    public class Graph : Entity
     {
         public Graph()
         {
@@ -21,6 +21,7 @@ namespace NGAT.Business.Domain.Core
         }
 
         #region Properties
+        public string Name { get; set; }
         /// <summary>
         /// The Nodes of this Graph (in Dictionary format, for indexing)
         /// </summary>
