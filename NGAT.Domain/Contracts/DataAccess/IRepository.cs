@@ -10,7 +10,7 @@ namespace NGAT.Business.Contracts.DataAccess
     /// Contract for the repository data access pattern
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
-    public interface IRepository<TEntity> where TEntity : NGAT.Business.Domain.Base.Entity
+    public interface IRepository<TEntity> where TEntity : class
     {
         /// <summary>
         /// The unit of work in this repository
