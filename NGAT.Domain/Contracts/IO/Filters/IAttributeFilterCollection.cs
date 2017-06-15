@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using System;
 
-namespace NGAT.Business.Contracts.Filters
+namespace NGAT.Business.Contracts.IO.Filters
 {
     /// <summary>
     /// Represents a collection of node filters
     /// </summary>
-    public interface IAttributeFilterCollection : IList<IAttributeFilter>
+    public interface IAttributeFilterCollection : IList<Func<IDictionary<string,string>,bool>>
     {
         /// <summary>
         /// Applies all filters registered in this collection to the specified <paramref name="attributes"/>

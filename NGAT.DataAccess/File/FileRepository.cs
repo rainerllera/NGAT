@@ -2,7 +2,7 @@
 
 namespace NGAT.DataAccess
 {
-    public class Class1
+    public class FileRepository
     {
     }
 }

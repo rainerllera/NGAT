@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <AssemblyName>NGAT.Services</AssemblyName>
+    <RootNamespace>NGAT.Services</RootNamespace>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Description>Provides basic services for creating network graphs based on information obtained from Geographical Information Systems, import/export from/to different formats and optimization algorithms to run over the network.</Description>
+    <RepositoryUrl>https://github.com/rainerllera/NGAT.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/rainerllera/NGAT</PackageProjectUrl>
+    <RepositoryType>GIT Repository</RepositoryType>
+    <PackageTags>Netwok Graphs, OpenStreetMap, GIS, TSP, CPP</PackageTags>
+    <Authors>Rainer Llera, Adriano Flechilla</Authors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile></DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NetTopologySuite.IO" Version="1.15.0-IHM" />
+    <PackageReference Include="OsmSharp" Version="6.1.0-pre1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NGAT.Domain\NGAT.Business.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="IO\Exporters\GRF\" />
+  </ItemGroup>
+
+</Project>

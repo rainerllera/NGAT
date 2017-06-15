@@ -15,7 +15,7 @@ namespace NGAT.Business.Domain.Base
     }
 
     /// <summary>
-    /// Default Entity, with ulong as type for the Id
+    /// Default Entity, with int as type for the Id
     /// </summary>
     public class Entity : Entity<int>
     {
