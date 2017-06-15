@@ -60,7 +60,7 @@ namespace NGAT.Business.Tests.GraphBuilders.Osm
             using (var file = File.OpenWrite("Cuba-Network-Partial.geojson"))
             {
                 var geoJsonExporter = new GeoJSONGraphExporter(file);
-                geoJsonExporter.ExportInRange(23.122363841245967, -82.37866401672363, 23.145805714137563, -82.35806465148926, graph);
+                geoJsonExporter.ExportInRange(23.1277, -82.3961, 23.145805714137563, -82.35806465148926, graph);
             }
         }
     }
