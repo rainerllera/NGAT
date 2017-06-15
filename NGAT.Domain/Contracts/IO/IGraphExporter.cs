@@ -44,5 +44,10 @@ namespace NGAT.Business.Contracts.IO
         /// <param name="input">The input for this export, including the graph to export</param>
         /// <returns>A task that exports the graph</returns>
         Task ExportAsync(Graph graph);
+
+        /// <summary>
+        /// Gets a unique id for the format. i.e: GRF, GeoJSON, GraphML...
+        /// </summary>
+        string FormatID { get; }
     }
 }

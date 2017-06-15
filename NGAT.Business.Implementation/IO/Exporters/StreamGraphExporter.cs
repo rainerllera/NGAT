@@ -14,6 +14,8 @@ namespace NGAT.Services.IO.Exporters
 
         public Stream Stream { get; set; }
 
+        public abstract string FormatID { get; }
+
         public void Dispose()
         {
             Stream.Dispose();

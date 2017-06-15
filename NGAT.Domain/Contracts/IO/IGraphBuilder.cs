@@ -44,5 +44,10 @@ namespace NGAT.Business.Contracts.IO
         /// <param name="input">Arguments needed to build the graph</param>
         /// <returns>A Task for building the Graph</returns>
         Task<Graph> BuildAsync();
+
+        /// <summary>
+        /// A unique string identifier for the map format. i.e: PBF, ShapeFile, GeoJSON...
+        /// </summary>
+        string DigitalMapFormatID { get; }
     }
 }

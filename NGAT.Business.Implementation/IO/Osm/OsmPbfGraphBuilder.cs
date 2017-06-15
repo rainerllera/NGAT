@@ -8,7 +8,6 @@ using OsmSharp.Streams;
 using OsmSharp;
 using System.Linq;
 using NGAT.Business.Contracts.IO.Filters;
-using NGAT.Business;
 
 namespace NGAT.Services.IO.Osm
 {
@@ -34,6 +33,8 @@ namespace NGAT.Services.IO.Osm
         public IAttributesFetcherCollection NodeAttributesFetchers { get; set; }
 
         public IAttributesFetcherCollection LinkAttributesFetchers { get; set; }
+
+        public string DigitalMapFormatID => "OsmPBF";
 
         public Graph Build()
         {

@@ -9,6 +9,8 @@ namespace NGAT.Services.IO.Exporters.GeoJSON
 {
     public class GeoJSONGraphExporter : StreamGraphExporter
     {
+        public override string FormatID => "GeoJSON";
+
         public GeoJSONGraphExporter(Stream stream) : base(stream)
         {
         }
