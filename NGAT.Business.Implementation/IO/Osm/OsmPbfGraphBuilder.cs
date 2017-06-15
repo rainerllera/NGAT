@@ -2,15 +2,15 @@
 using System.Threading.Tasks;
 using NGAT.Business.Contracts.IO;
 using NGAT.Business.Domain.Core;
-using NGAT.Business.Implementation.IO.Osm.Inputs;
 using System.Collections.Generic;
 using System.IO;
 using OsmSharp.Streams;
 using OsmSharp;
 using System.Linq;
 using NGAT.Business.Contracts.IO.Filters;
+using NGAT.Business;
 
-namespace NGAT.Business.Implementation.IO.Osm
+namespace NGAT.Services.IO.Osm
 {
     
     public class OsmPbfGraphBuilder : IGraphBuilder
@@ -121,14 +121,14 @@ namespace NGAT.Business.Implementation.IO.Osm
                         && nodesLinkCounter[osmNode.Id.Value] > 0)
                     {
                         //The node has more than one way that traverses it so we add it to the network
-                        var newNode = new Domain.Core.Node()
+                        var newNode = new Business.Domain.Core.Node()
                         {
                             Latitude = osmNode.Latitude.Value,
                             Longitude = osmNode.Longitude.Value,
                         };
 
                         //Fetching node attributes
-                        var fecthedAttributes = NodeAttributesFetchers.FetchWhiteListed(attributes);
+                        var fecthedAttributes = NodeAttributesFetchers.Fetch(attributes);
 
                         //Adding the node to the graph
                         network.AddNode(newNode, fecthedAttributes);
@@ -158,7 +158,7 @@ namespace NGAT.Business.Implementation.IO.Osm
 
                     #region Filtering ways by its attributes
                     //Way already passed all filters so we process it and fetch the attributes needed
-                    var fetchedArcAttributes = LinkAttributesFetchers.FetchWhiteListed(attributes);
+                    var fetchedArcAttributes = LinkAttributesFetchers.Fetch(attributes);
                     var arcData = new LinkData()
                     {
                         RawData = Newtonsoft.Json.JsonConvert.SerializeObject(fetchedArcAttributes)
