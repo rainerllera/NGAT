@@ -53,17 +53,14 @@ namespace NGAT.Business.Tests.GraphBuilders.Osm
             //Assert.False(graph.Edges.Any(e => e.FromNodeId == e.ToNodeId));
             //Assert.False(graph.Arcs.Any(a => a.FromNodeId == a.ToNodeId));
 
-            var nodes = graph.Nodes.Where(a => a.Longitude <= -82.35806465148926 && a.Latitude <= 23.145805714137563 && a.Longitude >= -82.37866401672363 && a.Latitude >= 23.122363841245967);
-            Assert.True(nodes.Count() != 0);
-
             Assert.True(graph.Edges.Where(e => e.LinkData.Attributes.ContainsKey("junction") && e.LinkData.Attributes["junction"] == "roundabout").Count() == 0);
             Assert.True(graph.Arcs.Where(e => e.LinkData.Attributes.ContainsKey("junction") && e.LinkData.Attributes["junction"] == "roundabout").Count() != 0);
 
             
-            using (var file = File.OpenWrite("Cuba-Network-Full1.geojson"))
+            using (var file = File.OpenWrite("Cuba-Network-Partial.geojson"))
             {
                 var geoJsonExporter = new GeoJSONGraphExporter(file);
-                geoJsonExporter.Export(graph);
+                geoJsonExporter.ExportInRange(23.122363841245967, -82.37866401672363, 23.145805714137563, -82.35806465148926, graph);
             }
         }
     }
