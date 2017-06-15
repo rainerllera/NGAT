@@ -26,4 +26,8 @@
     <ProjectReference Include="..\NGAT.Domain\NGAT.Business.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="IO\Exporters\GRF\" />
+  </ItemGroup>
+
 </Project>
