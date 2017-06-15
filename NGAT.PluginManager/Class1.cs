@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NGAT.DataAccess.Implementation
+namespace NGAT.PluginManager
 {
     public class Class1
     {
